@@ -1,7 +1,9 @@
+#!/usr/bin/env python
+import os
 import qi
 import argparse
 import sys
-import os
+
 
 def main(session):
     """
