@@ -8,7 +8,7 @@ sender = "user"
 
 rasa_endpoint = "http://localhost:5005/webhooks/rest/webhook"
 
-tts = ALProxy("ALTextToSpeech", "localhost", 36751)
+tts = ALProxy("ALTextToSpeech", "172.20.10.3", 36751)
 
 def send_to_rasa(data):
 
