@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2008, Willow Garage, Inc.
@@ -39,30 +37,35 @@
 
 import rospy
 from std_msgs.msg import String
-# import requests
+import requests
+
+sender = "user"
+
+rasa_endpoint = "http://localhost:5005/webhooks/rest/webhook"
 
 
-# sender = "user"
-
-# rasa_endpoint = "http://localhost:5005/webhooks/rest/webhook"
-
-# tts = ALProxy("ALTextToSpeech", "172.20.10.3", 36751)
-
-def talker():
-    pub = rospy.Publisher('chatter', String, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
+def talker(response):
+    pub = rospy.Publisher('rasa_response', String, queue_size=10)
+    rospy.init_node('rasa_response', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
-        hello_str = "give me a joke!"
-        rospy.loginfo(hello_str)
-        pub.publish(hello_str)
+        rospy.loginfo(response)
+        pub.publish(response)
         rate.sleep()
 
-# def rasa():
+def rasa():
+    text="give me a joke!"
+    results = requests.post(
+        rasa_endpoint, json={"sender": sender, "message": text}
+    ).json()
+
+    return results
 
 
 if __name__ == '__main__':
     try:
-        talker()
+        results = rasa()
+        for result in results:
+            talker(str(result['text']))
     except rospy.ROSInterruptException:
         pass

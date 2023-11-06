@@ -1,33 +1,54 @@
-from naoqi import ALProxy
-import requests
+#!/usr/bin/env python
+import os
+import qi
+import argparse
+import sys
 
 import rospy
 from std_msgs.msg import String
 
-sender = "user"
+class robot:
+    def __init__(self, session):
+        self.session = session
 
-rasa_endpoint = "http://localhost:5005/webhooks/rest/webhook"
+    def give_to_pepper(self, data):
 
-tts = ALProxy("ALTextToSpeech", "172.20.10.3", 36751)
+        text = data.data
+        rospy.loginfo('Heard message: "%s" ' % text)
+        # Get the service ALTextToSpeech.
 
-def send_to_rasa(data):
+        # tts = self.session.service("ALTextToSpeech")
+        # tts.setLanguage("English")
+        # tts.say(text)
 
-    text = data.data
-    rospy.loginfo('Heard message: "%s"  -- sending it to Rasa...' % text)
 
-    results = requests.post(
-        rasa_endpoint, json={"sender": sender, "message": text}
-    ).json()
+    def listener(self):
+        rospy.init_node('listener', anonymous=True)
 
-   
+        rospy.Subscriber('rasa_response', String, self.give_to_pepper())
 
-def listener():
-    rospy.init_node('listener', anonymous=True)
-
-    rospy.Subscriber('chatter', String, send_to_rasa)
-
-    # spin() simply keeps python from exiting until this node is stopped
-    rospy.spin()
+        # spin() simply keeps python from exiting until this node is stopped
+        rospy.spin()
 
 if __name__ == '__main__':
-    listener()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", type=str, default=os.environ.get("NAO_IP",None),
+                        help="Robot IP address.")
+    parser.add_argument("--port", type=int, default=9559,
+                        help="Naoqi port number")
+
+    args = parser.parse_args()
+    
+    # session = qi.Session()
+    try:
+        # session.connect("tcp://" + args.ip + ":" + str(args.port))
+        session=None
+        Robot=robot(session)
+        Robot.listener(session)
+
+    except RuntimeError:
+        print ("Can't connect to Naoqi at ip \"" + args.ip + "\" on port " + str(args.port) +".\n"
+               "Please check your script arguments. Run with -h option for help.")
+        sys.exit(1)
+    
+    
