@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2008, Willow Garage, Inc.
@@ -37,6 +39,14 @@
 
 import rospy
 from std_msgs.msg import String
+# import requests
+
+
+# sender = "user"
+
+# rasa_endpoint = "http://localhost:5005/webhooks/rest/webhook"
+
+# tts = ALProxy("ALTextToSpeech", "172.20.10.3", 36751)
 
 def talker():
     pub = rospy.Publisher('chatter', String, queue_size=10)
@@ -47,6 +57,9 @@ def talker():
         rospy.loginfo(hello_str)
         pub.publish(hello_str)
         rate.sleep()
+
+# def rasa():
+
 
 if __name__ == '__main__':
     try:
