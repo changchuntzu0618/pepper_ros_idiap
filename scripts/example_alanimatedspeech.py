@@ -21,7 +21,7 @@ def main(session):
     configuration = {"bodyLanguageMode":"contextual"}
 
     # say the text with the local configuration
-    asr_service.say("Hello, I am a robot !", configuration)
+    asr_service.say("Hello, I am happy!", configuration)
 
 
 if __name__ == "__main__":
