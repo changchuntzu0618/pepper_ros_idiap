@@ -47,7 +47,6 @@ rasa_endpoint = "http://localhost:5005/webhooks/rest/webhook"
 
 class RASA:
     def __init__(self):
-        
         self.sub=rospy.Subscriber('/human_dialogue', String, self.rasa_response)
         self.pub= rospy.Publisher('~rasa_response', String, queue_size=1)
 
@@ -68,7 +67,7 @@ class RASA:
 
 if __name__ == '__main__':
     rospy.init_node('rasa')
-    Rasa=RASA
+    Rasa=RASA()
 
     # except rospy.ROSInterruptException:
     #     pass
