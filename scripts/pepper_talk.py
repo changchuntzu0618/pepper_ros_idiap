@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import qi
 import argparse
@@ -34,6 +36,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     session = qi.Session()
+    rospy.init_node('pepper_say')
     try:
         session.connect("tcp://" + args.ip + ":" + str(args.port))
         # session=None
