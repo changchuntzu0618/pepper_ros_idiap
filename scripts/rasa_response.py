@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2008, Willow Garage, Inc.
@@ -44,28 +45,31 @@ sender = "user"
 rasa_endpoint = "http://localhost:5005/webhooks/rest/webhook"
 
 
-def talker(response):
-    pub = rospy.Publisher('rasa_response', String, queue_size=10)
-    rospy.init_node('rasa_response', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
-    while not rospy.is_shutdown():
-        rospy.loginfo(response)
-        pub.publish(response)
-        rate.sleep()
+class RASA:
+    def __init__(self):
+        
+        self.sub=rospy.Subscriber('/human_dialogue', String, self.rasa_response)
+        self.pub= rospy.Publisher('~rasa_response', String, queue_size=1)
 
-def rasa():
-    text="give me a joke!"
-    results = requests.post(
-        rasa_endpoint, json={"sender": sender, "message": text}
-    ).json()
+    def rasa_response(self, data):
+        text=data.data
+        rospy.loginfo('Heard User said: "%s" ' % text)
 
-    return results
+        results = requests.post(
+            rasa_endpoint, json={"sender": sender, "message": text}
+        ).json()
+        
+        for result in results:
+            result=result['text']
+            rospy.loginfo('Rasa response: "%s" ' % result)
+            self.pub.publish(result)
+            
 
 
 if __name__ == '__main__':
-    try:
-        results = rasa()
-        for result in results:
-            talker(str(result['text']))
-    except rospy.ROSInterruptException:
-        pass
+    rospy.init_node('rasa')
+    Rasa=RASA
+
+    # except rospy.ROSInterruptException:
+    #     pass
+    rospy.spin()

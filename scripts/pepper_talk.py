@@ -7,28 +7,22 @@ import sys
 import rospy
 from std_msgs.msg import String
 
+
 class robot:
     def __init__(self, session):
-        self.session = session
+        self.tts=session.service("ALTextToSpeech")
+        self.tts.setLanguage("English")
+        self.sub=rospy.Subscriber('/rasa/rasa_response', String, self.give_to_pepper)
+    
 
     def give_to_pepper(self, data):
 
-        text = data.data
-        rospy.loginfo('Heard message: "%s" ' % text)
+        pepper_say=data.data
+
         # Get the service ALTextToSpeech.
+        rospy.loginfo('Pepper say: "%s" ' % pepper_say)
+        self.tts.say(str(pepper_say))
 
-        # tts = self.session.service("ALTextToSpeech")
-        # tts.setLanguage("English")
-        # tts.say(text)
-
-
-    def listener(self):
-        rospy.init_node('listener', anonymous=True)
-
-        rospy.Subscriber('rasa_response', String, self.give_to_pepper())
-
-        # spin() simply keeps python from exiting until this node is stopped
-        rospy.spin()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -39,16 +33,18 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     
-    # session = qi.Session()
+    session = qi.Session()
     try:
-        # session.connect("tcp://" + args.ip + ":" + str(args.port))
-        session=None
+        session.connect("tcp://" + args.ip + ":" + str(args.port))
+        # session=None
         Robot=robot(session)
-        Robot.listener(session)
 
     except RuntimeError:
         print ("Can't connect to Naoqi at ip \"" + args.ip + "\" on port " + str(args.port) +".\n"
                "Please check your script arguments. Run with -h option for help.")
         sys.exit(1)
+    rospy.spin()
     
+    
+
     
