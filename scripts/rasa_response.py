@@ -14,6 +14,7 @@ class RASA:
     def __init__(self):
         # self.sub=rospy.Subscriber('/human_dialogue', String, self.rasa_response)
         self.sub=rospy.Subscriber('/end_of_speech/eos', EndOfSpeech, self.rasa_response)
+        
         self.pub= rospy.Publisher('~rasa_response', String, queue_size=1)
 
     def rasa_response(self, eos_msg):
@@ -21,6 +22,7 @@ class RASA:
         self.confidence=eos_msg.confidence
         self.header=eos_msg.header
         rospy.loginfo('Heard User said: "%s", with confidence "%f" ' % (self.text, self.confidence))
+        self.emotion=rospy.wait_for_message('/fer/emotion', String, timeout=10)
 
         self.results = requests.post(
             rasa_endpoint, json={"sender": sender, "message": self.text}
