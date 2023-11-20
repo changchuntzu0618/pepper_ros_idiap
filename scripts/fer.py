@@ -10,7 +10,8 @@ import os
 BASE=os.path.dirname(os.path.abspath(__file__))
 TMP=os.path.join(BASE,'tmp.jpg')
 SAD_EMOTION=['angry', 'fear', 'sad', 'disgust']
-HAPPY_EMOTION=['happy', 'surprise','neutral']
+HAPPY_EMOTION=['happy', 'surprise']
+NEUTRAL_EMOTION=['neutral']
 
 class FER:
     def __init__(self):
@@ -51,6 +52,8 @@ class FER:
                     detected_emotion='sad'
                 elif detected_emotion in HAPPY_EMOTION:
                     detected_emotion='happy'
+                else: 
+                    detected_emotion='neutral'
                 self.detected_emotions.append(detected_emotion)
                 rospy.loginfo('Detected emotion: "%s" ' % (detected_emotion))
                 # self.pub.publish(detected_emotion)
