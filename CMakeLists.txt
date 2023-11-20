@@ -159,6 +159,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/pepper_talk.py
   scripts/rasa_response.py
+  scripts/fer.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
