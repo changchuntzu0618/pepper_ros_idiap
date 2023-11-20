@@ -13,6 +13,18 @@ SAD_EMOTION=['angry', 'fear', 'sad', 'disgust']
 HAPPY_EMOTION=['happy', 'surprise']
 NEUTRAL_EMOTION=['neutral']
 
+backends = [
+  'opencv', 
+  'ssd', 
+  'dlib', 
+  'mtcnn', 
+  'retinaface', 
+  'mediapipe',
+  'yolov8',
+  'yunet',
+  'fastmtcnn',
+]
+
 class FER:
     def __init__(self):
         self.bridge = CvBridge()
@@ -45,7 +57,7 @@ class FER:
             cv2.imwrite(TMP, cv_image)
             try:
                 objs = DeepFace.analyze(img_path = TMP, 
-                    actions = ['emotion']
+                    actions = ['emotion'],
                 )
                 detected_emotion=objs[0]['dominant_emotion']
                 if detected_emotion in SAD_EMOTION:
