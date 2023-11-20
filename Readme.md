@@ -26,7 +26,7 @@ Computer Remote: Anothor computer (Tested on Ubuntu 20.04 with ROS Noetic)
 
     rasa installed
 
-    ros pachage:
+    ros package:
 
         pepper_ros_idiap (this repo)
 
@@ -38,7 +38,7 @@ On Computer Master
 # Get the sensor data from Pepper
 roslaunch naoqi_driver naoqi_driver.launch network_interface:=enp5s0
 
-#Mummur ASR: for speech-to-text
+#Mummur ASR: for speech-to-text, set use_extra_mic to ture for using external microphone 
 roslaunch mummer_asr_launch mummer_asr.launch use_extra_mic:=false target_language:=en-UK
 
 # To start Listen what user said
