@@ -52,6 +52,7 @@ add_message_files(
   FILES
   EndOfSpeech.msg
   MummerAsr.msg
+  AudioBuffer.msg
 )
 
 ## Generate services in the 'srv' folder
