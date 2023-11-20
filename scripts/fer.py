@@ -1,7 +1,7 @@
 import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
-from pepper_ros.msg import EndOfSpeech, MummerAsr
+from pepper_ros.msg import EndOfSpeech, MummerAsr,AudioBuffer
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from deepface import DeepFace
@@ -19,6 +19,7 @@ class FER:
         self.detected_emotions=[]
         self.sub1=rospy.Subscriber('/mummer_asr/result', MummerAsr, self.call_back1)
         self.sub2=rospy.Subscriber('/end_of_speech/eos', EndOfSpeech,self.call_back2)
+        # self.sub1 = rospy.Subscriber("/noise_filter_node/result", AudioBuffer, self.call_back1, queue_size=1)
         self.sub3=rospy.Subscriber('/naoqi_driver_node/camera/front/image_raw',Image, self.fer)
         self.pub= rospy.Publisher('~emotion', String, queue_size=1)
         self.pub2=rospy.Publisher('~flag', String, queue_size=1)
@@ -71,9 +72,13 @@ class FER:
 
         elif self.flag==2:
             # TODO: check with Emmanual this method, or ask for his suggestion for better method
+            # Since now flag 1 will happend in the bery end of the speech, so between flag 1-flag 2, it is actually the period of
+            # user finish talking and waiting for reply
             num_use=int((len(self.detected_emotions)/2))
             if num_use==0: num_use=1   
             self.detected_emotions=self.detected_emotions[:num_use]
+
+            # Get the most frequent emotion in this period
             pub_emotion=max(self.detected_emotions,key=self.detected_emotions.count)
             self.pub.publish(pub_emotion)
             print(len(self.detected_emotions))
