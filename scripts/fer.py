@@ -58,6 +58,7 @@ class FER:
             try:
                 objs = DeepFace.analyze(img_path = TMP, 
                     actions = ['emotion'],
+                    silent=True,
                 )
                 detected_emotion=objs[0]['dominant_emotion']
                 if detected_emotion in SAD_EMOTION:
@@ -95,9 +96,10 @@ class FER:
 
             # Get the most frequent emotion in this period
             pub_emotion=max(self.detected_emotions,key=self.detected_emotions.count)
+            rospy.loginfo('Detected emotion: "%s" ' % (pub_emotion))
             self.pub.publish(pub_emotion)
-            print(len(self.detected_emotions))
-            print(self.detected_emotions)
+            # print(len(self.detected_emotions))
+            # print(self.detected_emotions)
             self.detected_emotions=[]
             self.flag=0
 
