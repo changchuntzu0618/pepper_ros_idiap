@@ -9,8 +9,8 @@ import os
 
 BASE=os.path.dirname(os.path.abspath(__file__))
 TMP=os.path.join(BASE,'tmp.jpg')
-SAD_EMOTION=['angry', 'fear', 'neutral', 'sad', 'disgust']
-HAPPY_EMOTION=['happy', 'surprise']
+SAD_EMOTION=['angry', 'fear', 'sad', 'disgust']
+HAPPY_EMOTION=['happy', 'surprise','neutral']
 
 class FER:
     def __init__(self):
@@ -70,10 +70,16 @@ class FER:
             
 
         elif self.flag==2:
+            # TODO: check with Emmanual this method, or ask for his suggestion for better method
+            num_use=int((len(self.detected_emotions)/2))
+            if num_use==0: num_use=1   
+            self.detected_emotions=self.detected_emotions[:num_use]
             pub_emotion=max(self.detected_emotions,key=self.detected_emotions.count)
             self.pub.publish(pub_emotion)
-            self.flag=0
+            print(len(self.detected_emotions))
+            print(self.detected_emotions)
             self.detected_emotions=[]
+            self.flag=0
 
 
         cv2.imshow("Image window", cv_image)
