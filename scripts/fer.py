@@ -68,7 +68,7 @@ class FER:
                 else: 
                     detected_emotion='neutral'
                 self.detected_emotions.append(detected_emotion)
-                rospy.loginfo('Detected emotion: "%s" ' % (detected_emotion))
+                # rospy.loginfo('Detected emotion: "%s" ' % (detected_emotion))
                 # self.pub.publish(detected_emotion)
 
                 bbox=objs[0]['region']
@@ -90,6 +90,8 @@ class FER:
             # TODO: check with Emmanual this method, or ask for his suggestion for better method
             # Since now flag 1 will happend in the bery end of the speech, so between flag 1-flag 2, it is actually the period of
             # user finish talking and waiting for reply
+            if len(self.detected_emotions)==0: 
+                return
             num_use=int((len(self.detected_emotions)/2))
             if num_use==0: num_use=1   
             self.detected_emotions=self.detected_emotions[:num_use]
