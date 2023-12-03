@@ -55,6 +55,9 @@ rasa run actions
 
 # get the result of ASR and send to rasa and then publish response
 rosrun pepper_ros rasa_response.py 
+
+# strat facial expression recognition and publish deetcted emotion of user in every speech
+rosrun pepper_ros fer.py
 ```
 
 On Computer Master
