@@ -49,6 +49,8 @@ On Computer Remote
 ```
 # open rasa and rasa actions in two terminals
 rasa run
+
+#Remember to "export OPENAI_API_KEY=..." beofre running following command if using chatgpt in actions
 rasa run actions
 
 # get the result of ASR and send to rasa and then publish response
