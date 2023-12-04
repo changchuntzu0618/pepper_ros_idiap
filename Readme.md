@@ -27,6 +27,7 @@ Computer Remote: Anothor computer (Tested on Ubuntu 20.04 with ROS Noetic)
     rasa installed
 
     ros package:
+        perception_msgs (from idiap mummer gitlab)
 
         pepper_ros_idiap (this repo)
 

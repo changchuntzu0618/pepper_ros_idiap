@@ -3,6 +3,7 @@
 import rospy
 from std_msgs.msg import String
 from end_of_speech.msg import EndOfSpeech
+from pepper_ros.srv import Emotion, EmotionResponse
 import requests
 
 sender = "user"
@@ -19,6 +20,8 @@ class RASA:
         
         self.pub= rospy.Publisher('~rasa_response', String, queue_size=1)
         self.get_emotion=False
+
+        self.srv_emotion = rospy.ServiceProxy('get_emotion', Emotion)
 
     def rasa_response(self, eos_msg):
         self.text=eos_msg.final_utterance
@@ -53,9 +56,11 @@ class RASA:
     def emotion_to_rasa(self):
         # self.emotion=rospy.wait_for_message('/fer/emotion', String, timeout=10)
         # content='I am feeling '+str(self.emotion.data)
-
-        # for testing
-        self.emotion='sad'
+        self.emotion = self.srv_emotion().emotion
+        rospy.loginfo('Get emotion: '+str(self.emotion))
+       
+        # # for testing
+        # self.emotion='sad'
         content='I am feeling '+str(self.emotion)
         self.send_to_rasa(content)
     
