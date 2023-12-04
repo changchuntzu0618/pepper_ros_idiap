@@ -38,19 +38,22 @@ On Computer Master (idiap big computer)
 # run person_manager/demos/demo_perception.sh (it will open a tmux)
 bash /home/mummer/mummer_ws/src/person_manager/demos/demo_perception.sh
 
-# Window 1:robot
-# Get the sensor data from Pepper
-roslaunch naoqi_driver naoqi_driver.launch network_interface:=enp5s0
-#Align color image and depth image
-roslaunch naoqi_driver register_depth.launch
+#Only need to runing following command in all three tmux window
 
-# Window 2: perception
+# Window 1:robot (crtl-b -> 1)
+# Get the sensor data from Pepper
+DISPLAY=:0 roslaunch naoqi_driver naoqi_driver.launch network_interface:=enp5s0
+#Align color image and depth image
+DISPLAY=:0 roslaunch naoqi_driver register_depth.launch
+
+# Window 2: perception (crtl-b -> 2)
 #Before running following command source env first
 source ~/mummer_ws/devel/setup.bash
 # perception manager code it will give out topic for face tracker and is_speaking
 #change manager_visu to 0 to close the visulization window
 DISPLAY=:0 roslaunch person_manager perception.launch naoqi:=1 tracker_delay:=50 tracker_scale:=0.5 tracker_detector:=openheadpose tracker_particles:=50 tracker_min_height:=0.12 manager_keep_threshold:=0.02 tracker_visu:=1 manager_visu:=1 with_audio:=1
 
+#Open seperate terminal
 #Mummur ASR: for speech-to-text, set use_extra_mic to ture for using external microphone 
 roslaunch mummer_asr_launch mummer_asr.launch use_extra_mic:=false target_language:=en-UK
 
