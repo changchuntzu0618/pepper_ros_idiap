@@ -56,11 +56,10 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+  FILES
+  Emotion.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -165,6 +164,8 @@ catkin_install_python(PROGRAMS
   scripts/pepper_talk.py
   scripts/rasa_response.py
   scripts/fer.py
+  scripts/fer_v2.py
+  scripts/fer_v3.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
