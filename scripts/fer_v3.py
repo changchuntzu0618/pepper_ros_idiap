@@ -167,7 +167,7 @@ class FER:
                 self.speaking_id=copy.copy(speaking_id)
 
                 self.speaking_time[speaking_id]['box']=p.box
-                print('final:',self.speaking_time[speaking_id])
+                # print('final:',self.speaking_time[speaking_id])
                 self.detected_ppl={'start':self.speaking_time[speaking_id]['start'],
                                     'end':self.speaking_time[speaking_id]['end'],
                                     'box':self.speaking_time[speaking_id]['box']}
