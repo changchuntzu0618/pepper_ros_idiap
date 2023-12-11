@@ -30,8 +30,8 @@ class robot:
         start_stamp=rospy.get_rostime()
         self.tts.say(str(pepper_say))
         finish_stamp=rospy.get_rostime()
-        talk_time.talk_time=start_stamp
-        talk_time.talk_time=finish_stamp
+        talk_time.start_stamp=start_stamp
+        talk_time.finish_stamp=finish_stamp
         # talk_time.start_stamp=rospy.Time.from_sec((finish_stamp.to_sec()+start_stamp.to_sec())/2)
         # talk_time.finish_stamp=rospy.Time.from_sec(finish_stamp.to_sec()+2)
         self.pub.publish(talk_time)
