@@ -53,6 +53,7 @@ add_message_files(
   EndOfSpeech.msg
   MummerAsr.msg
   AudioBuffer.msg
+  PepperTalkTime.msg
 )
 
 ## Generate services in the 'srv' folder

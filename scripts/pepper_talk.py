@@ -8,6 +8,7 @@ import sys
 
 import rospy
 from std_msgs.msg import String
+from pepper_ros.msg import PepperTalkTime
 
 
 class robot:
@@ -15,19 +16,23 @@ class robot:
         self.tts=session.service("ALTextToSpeech")
         self.tts.setLanguage("English")
         self.sub=rospy.Subscriber('/rasa/rasa_response', String, self.give_to_pepper)
+        self.pub= rospy.Publisher('~talk_time', PepperTalkTime, queue_size=1)
     
 
     def give_to_pepper(self, data):
 
         pepper_say=data.data
-
         # Get the service ALTextToSpeech.
         rospy.loginfo('Pepper say: "%s" ' % pepper_say)
-        self.tts.say(str(pepper_say))
 
-        while self.tts.isSpeaking():
-            print('Pepper is talking')
-        print('Finish talking')
+        talk_time=PepperTalkTime()
+
+        talk_time.start_stamp=rospy.get_rostime()
+        self.tts.say(str(pepper_say))
+        talk_time.finish_stamp=rospy.get_rostime()
+
+        self.pub.publish(talk_time)
+        rospy.loginfo('Pepper talk time: "%s" ' % talk_time)
 
 
 if __name__ == '__main__':
