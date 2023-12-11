@@ -20,7 +20,7 @@ class RASA:
     def __init__(self):
         # self.sub=rospy.Subscriber('/human_dialogue', String, self.rasa_response)
         self.sub=rospy.Subscriber('/end_of_speech/eos', EndOfSpeech, self.rasa_response)
-        self.sub2=rospy.Subscriber('/pepper_say/talk_time', PepperTalkTime, self.get_pepper_talk_time)
+        # self.sub2=rospy.Subscriber('/pepper_say/talk_time', PepperTalkTime, self.get_pepper_talk_time)
         
         self.pub= rospy.Publisher('~rasa_response', String, queue_size=1)
         self.get_emotion=False
@@ -28,6 +28,9 @@ class RASA:
         self.srv_emotion = rospy.ServiceProxy('get_emotion', Emotion)
 
         self.talktime_buffer=None
+        self.joke_start=False
+        self.get_time_flag=False
+        self.get_emotion_flag=False
 
     def rasa_response(self, eos_msg):
         self.text=eos_msg.final_utterance
@@ -58,17 +61,24 @@ class RASA:
                 self.utter_think_func()
             else:
                 self.publish_to_result(result)
-    
-  
+        # if self.joke_start:
+        #     self.get_time_flag=True
+        #     self.joke_start=False
+            
     
     def publish_to_result(self, result):
         rospy.loginfo('Rasa response: "%s" ' % (result))
         self.pub.publish(result)
-        self.send_time=rospy.Time.now()
-    
-    def get_pepper_talk_time(self, talk_time):
-        self.talktime_buffer=copy.copy(talk_time)
+        self.talktime_buffer=rospy.wait_for_message('/pepper_say/talk_time', PepperTalkTime, timeout=10)
         print('self.talktime_buffer:',self.talktime_buffer)
+        
+    
+    # def get_pepper_talk_time(self, talk_time):
+    #     if self.get_time_flag:
+    #         self.talktime_buffer=copy.copy(talk_time)
+    #         print('self.talktime_buffer:',self.talktime_buffer)
+    #         self.get_time_flag=False
+    #         self.get_emotion_flag=True
     
     def get_emotion_pepper_talk(self):
         emotion=self.srv_emotion('pepper',self.talktime_buffer.start_stamp, self.talktime_buffer.finish_stamp).emotion
@@ -97,6 +107,7 @@ class RASA:
     def utter_think_func(self):
         print('start chatgpt')
         self.send_to_rasa('start chatgpt')
+        # self.joke_start=True
         
 
 if __name__ == '__main__':

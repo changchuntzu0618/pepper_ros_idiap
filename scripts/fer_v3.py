@@ -121,11 +121,11 @@ class FER:
                 if time_stamp >= start_time and time_stamp <= end_time:
                     for detect_emotion in self.emotion_buffer[time_stamp]:
                         all_emotion.append(detect_emotion['emotion'])
-            print('emotion_buffer:',self.emotion_buffer)
+            # print('emotion_buffer:',self.emotion_buffer)
             print('all_emotion:',all_emotion)
             print('start_time:',start_time)
             print('end_time:',end_time)
-                        
+
             # get the most frequent emotion
             def emotion_priority(emotion):
                 # Define the priority of emotions
