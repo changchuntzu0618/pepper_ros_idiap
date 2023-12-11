@@ -32,7 +32,7 @@ class robot:
         talk_time.finish_stamp=rospy.get_rostime()
 
         self.pub.publish(talk_time)
-        rospy.loginfo('Pepper talk time: "%s" ' % talk_time)
+        # rospy.loginfo('Pepper talk time: "%s" ' % talk_time)
 
 
 if __name__ == '__main__':
