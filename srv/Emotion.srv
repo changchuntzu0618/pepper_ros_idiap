@@ -1,6 +1,9 @@
+#mode: 'pepper' or 'user'
+string mode
+
 time start_stamp
 
-time end_stamp
+time finish_stamp
 ---
 #Two-integer timestamp that is expressed as:
 # * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')
