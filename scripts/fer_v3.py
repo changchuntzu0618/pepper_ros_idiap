@@ -39,10 +39,14 @@ class FER:
         self.face_image=None
         self.detected_ppl=None
 
+        # for debug
+        self.all_person_id=None
+        self.speaking_id=None
+        self.is_speaking_print=None
+        self.pub_emotion=None
+
         self.is_speaking = set([])
         self.speaking_time = {}
-
-  
 
         self.sub_image=rospy.Subscriber('/naoqi_driver_node/camera/front/image_raw',Image, self.fer)
         self.sub_tracker=rospy.Subscriber('/wp2/track',TrackedPersonArray, self.__track_cb, queue_size=10)
@@ -90,6 +94,10 @@ class FER:
                         
             resp=EmotionResponse()
             resp.emotion=pub_emotion
+
+            #for debug
+            self.pub_emotion=copy.copy(pub_emotion)
+
             rospy.loginfo('Publish emotion: "%s" ' % (pub_emotion))
 
             # TODO: add time_stamp and emotion_prob
@@ -97,7 +105,7 @@ class FER:
             # resp.emotion_prob=emotion_prob
             return resp
         else:
-            rospy.loginfo('No person detected')
+            # rospy.loginfo('No person detected for emotion')
             resp=EmotionResponse()
             resp.emotion='no_person_detected'
             return resp
@@ -109,23 +117,30 @@ class FER:
             all_person_id=[]
             all_person_id.append(p.person_id)
             all_person_id.extend(p.alternate_ids)
+            # for debug
+            self.all_person_id=copy.copy(all_person_id)
+
             common=self.is_speaking & set(all_person_id)
             if common:
                 speaking_id = list(common)[0]
-                
+                # for debug
+                self.speaking_id=copy.copy(speaking_id)
+
                 self.speaking_time[speaking_id]['box']=p.box
                 print('final:',self.speaking_time[speaking_id])
                 self.detected_ppl={'start':self.speaking_time[speaking_id]['start'],
                                     'end':self.speaking_time[speaking_id]['end'],
                                     'box':self.speaking_time[speaking_id]['box']}
+
                 self.speaking_time={}
+                self.is_speaking_print = copy.copy(self.is_speaking)
+                self.is_speaking.clear()
         
 
     def __voice_cb(self, imsg):
         """
         """
-
-        self.is_speaking.clear()
+        # self.is_speaking.clear()
         
         for m in imsg.data:
             if m.person_id not in self.speaking_time:
@@ -134,20 +149,24 @@ class FER:
                 self.speaking_time[m.person_id]['end'] = None
                 self.speaking_time[m.person_id]['start_count'] = 0
                 self.speaking_time[m.person_id]['end_count'] = 0
+                self.speaking_time[m.person_id]['speaking_sequence'] = []
 
             if m.is_speaking:
                 # print('Speaking!!!!')
                 self.speaking_time[m.person_id]['end_count']=0
                 self.speaking_time[m.person_id]['start_count'] += 1
+                self.speaking_time[m.person_id]['speaking_sequence'].append(m.is_speaking)
                 if self.speaking_time[m.person_id]['start_count'] >= 3:
                     self.speaking_time[m.person_id]['start']=imsg.header.stamp.to_nsec()
             else:
                 # print('Not Speaking!!!!')
                 self.speaking_time[m.person_id]['start_count']=0
                 self.speaking_time[m.person_id]['end_count'] += 1
+                self.speaking_time[m.person_id]['speaking_sequence'].append(m.is_speaking)
                 if self.speaking_time[m.person_id]['end_count'] >= 3:
                     if self.speaking_time[m.person_id]['start'] is not None:
                         self.is_speaking.add(m.person_id)
+                        print('self.is_speaking:',self.is_speaking)
                         self.speaking_time[m.person_id]['end']=imsg.header.stamp.to_nsec()
         # print(self.speaking_time)
         
@@ -159,7 +178,7 @@ class FER:
         except CvBridgeError as e:
             print(e)
 
-        cv2.imwrite(TMP, cv_image)
+        # cv2.imwrite(TMP, cv_image)
         time_stamp=(data.header.stamp).to_nsec()
 
         # store the emotion buffer every 0.1 second
@@ -167,7 +186,7 @@ class FER:
             self.emotion_buffer[time_stamp]=[]
         
         try:
-            all_objs = DeepFace.analyze(img_path = TMP, 
+            all_objs = DeepFace.analyze(img_path = cv_image,
                 actions = ['emotion'],
                 silent=True,
             )
@@ -202,9 +221,9 @@ class FER:
                 cv_image=cv2.putText(cv_image,str(detected_emotion),(x1,y1),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
 
         except:
-            rospy.loginfo('No face detected')
+            # rospy.loginfo('No face detected')
             detected_emotion='no_face'
-            if time_stamp-self.last_time>=0.5*(10**9):
+            if time_stamp-self.last_time>=0.1*(10**9):
                 info={}
                 info['emotion']=detected_emotion
                 info['emotion_prob']=None
@@ -212,6 +231,13 @@ class FER:
                 self.emotion_buffer[time_stamp].append(info)
 
         # print(self.emotion_buffer)
+
+        # for debug speaking
+        cv_image=cv2.putText(cv_image,'is speaking(before clear):'+str(self.is_speaking_print),(10,30),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
+        cv_image=cv2.putText(cv_image,'all_person_id:'+str(self.all_person_id),(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
+        cv_image=cv2.putText(cv_image,'speaking id (common):'+str(self.speaking_id),(10,70),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
+        cv_image=cv2.putText(cv_image,'publish emotion:'+str(self.pub_emotion),(10,90),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1)
+
         cv2.imshow("Image window", cv_image)
         cv2.waitKey(1)
         if time_stamp-self.last_time>=0.1*(10**9):

@@ -37,7 +37,7 @@ class RASA:
         results = requests.post(
             rasa_endpoint, json={"sender": sender, "message": text}
         ).json()
-        print('first:',results)
+        # print('first:',results)
         for result in results:
             result=result['text']
             if result==detect_emotion:
@@ -58,10 +58,15 @@ class RASA:
         # content='I am feeling '+str(self.emotion.data)
         self.emotion = self.srv_emotion().emotion
         rospy.loginfo('Get emotion: '+str(self.emotion))
+
+        if self.emotion == 'no_person_detected' or self.emotion == 'no_face':
+            self.emotion = 'sad'
        
         # # for testing
         # self.emotion='sad'
+
         content='I am feeling '+str(self.emotion)
+        rospy.loginfo('Send to RASA:' + content)
         self.send_to_rasa(content)
     
     def utter_think_func(self):
