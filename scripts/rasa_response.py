@@ -64,7 +64,7 @@ class RASA:
         # print('self.talktime_buffer:',self.talktime_buffer)
         
     def get_emotion_pepper_talk(self):
-        time.sleep(2) #wait for 2 second
+        time.sleep(3) #wait for 3 second
         emotion=self.srv_emotion('pepper',self.talktime_buffer.start_stamp, self.talktime_buffer.finish_stamp).emotion
         rospy.loginfo('Get emotion (pepper talk): '+str(emotion))
         self.emotion_to_rasa(emotion)
