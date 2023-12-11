@@ -121,7 +121,11 @@ class FER:
                 if time_stamp >= start_time and time_stamp <= end_time:
                     for detect_emotion in self.emotion_buffer[time_stamp]:
                         all_emotion.append(detect_emotion['emotion'])
+            print('emotion_buffer:',self.emotion_buffer)
             print('all_emotion:',all_emotion)
+            print('start_time:',start_time)
+            print('end_time:',end_time)
+                        
             # get the most frequent emotion
             def emotion_priority(emotion):
                 # Define the priority of emotions
@@ -279,7 +283,7 @@ class FER:
         # cv_image=cv2.putText(cv_image,'all_person_id:'+str(self.all_person_id),(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
         # cv_image=cv2.putText(cv_image,'speaking id (common):'+str(self.speaking_id),(10,70),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
         cv_image=cv2.putText(cv_image,'publish emotion:'+str(self.pub_emotion),(10,30),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1)
-        # cv_image=cv2.putText(cv_image,'time:'+str(time_stamp),(10,30),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),1)
+        cv_image=cv2.putText(cv_image,'time:'+str(time_stamp),(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),1)
 
         cv2.imshow("Image window", cv_image)
         cv2.waitKey(1)

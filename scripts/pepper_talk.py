@@ -31,8 +31,8 @@ class robot:
         self.tts.say(str(pepper_say))
         finish_stamp=rospy.get_rostime()
         # talk_time.talk_time=start_stamp
-        talk_time.start_stamp=rospy.Time.from_nsec((finish_stamp.to_nsec()+start_stamp.to_nsec())/2)
-        talk_time.finish_stamp=rospy.Time.from_nsec(finish_stamp.to_nsec()+2*10**9)
+        talk_time.start_stamp=rospy.Time.from_sec((finish_stamp.to_nsec()+start_stamp.to_nsec())/(2*(10**9)))
+        talk_time.finish_stamp=rospy.Time.from_nsec(finish_stamp.to_nsec()+2*(10**9))
         self.pub.publish(talk_time)
         rospy.loginfo('Pepper talk time: "%s" ' % talk_time)
 
