@@ -57,61 +57,92 @@ class FER:
         self.srv = rospy.Service('get_emotion', Emotion, self.emotion_callback)
         
     def emotion_callback(self,req):
-        if self.detected_ppl is not None:
+        if req.person=='user':
+            if self.detected_ppl is not None:
+                all_emotion=[]
+                # get the person strat speaking time and end speaking time
+                start_time=self.detected_ppl['start']
+                end_time=self.detected_ppl['end']
+                face_box=self.detected_ppl['box'] 
+                x0, x1, y0, y1 = self.scale_bounding_box(self.image,
+                                                                face_box.h, face_box.w,
+                                                                face_box.height, face_box.width,
+                                                                face_box.image_height,
+                                                                face_box.image_width)
+                face_box=[x0,y0,x1-x0,y1-y0]
+                # print(self.emotion_buffer)
+                for time_stamp in self.emotion_buffer.keys():
+                    if time_stamp >= start_time and time_stamp <= end_time:
+                        for detect_emotion in self.emotion_buffer[time_stamp]:
+                            # print('detect_emotion:',detect_emotion)
+                            emotion_box=detect_emotion['box']
+                            # TODO: use a function to compare the face_box (face from face track, the face who is speaking) and emotion_box(face whihch the emotion detected)
+                            # if self.are_bounding_boxes_almost_same(face_box, emotion_box):
+                            all_emotion.append(detect_emotion['emotion'])
+
+                            # print(self.emotion_buffer)
+                            # print(self.detected_ppl)
+
+                self.detected_ppl=None
+                print('all_emotion:',all_emotion)
+                # get the most frequent emotion
+                def emotion_priority(emotion):
+                    # Define the priority of emotions
+                    if emotion == "no_face":
+                        return 0
+                    else:
+                        return 1
+                # Find the emotion with the maximum count, considering the custom sorting key
+                pub_emotion = max(set(all_emotion), key=lambda x: (all_emotion.count(x), emotion_priority(x)))
+                # pub_emotion=max(all_emotion,key=all_emotion.count)
+                            
+                resp=EmotionResponse()
+                resp.emotion=pub_emotion
+
+                #for debug
+                self.pub_emotion=copy.copy(pub_emotion)
+
+                rospy.loginfo('Publish emotion: "%s" ' % (pub_emotion))
+
+                # TODO: add time_stamp and emotion_prob
+                # resp.time_stamp=time_stamp
+                # resp.emotion_prob=emotion_prob
+                return resp
+            else:
+                # rospy.loginfo('No person detected for emotion')
+                resp=EmotionResponse()
+                resp.emotion='no_person_detected'
+                return resp
+        elif req.person=='pepper':
+            start_time=req.start_stamp.to_nsec()
+            end_time=req.finish_stamp.to_nsec()
             all_emotion=[]
-            # get the person strat speaking time and end speaking time
-            start_time=self.detected_ppl['start']
-            end_time=self.detected_ppl['end']
-            face_box=self.detected_ppl['box'] 
-            x0, x1, y0, y1 = self.scale_bounding_box(self.image,
-                                                            face_box.h, face_box.w,
-                                                            face_box.height, face_box.width,
-                                                            face_box.image_height,
-                                                            face_box.image_width)
-            face_box=[x0,y0,x1-x0,y1-y0]
-            # print(self.emotion_buffer)
-            for time_stamp in self.emotion_buffer.keys():
-                if time_stamp >= start_time and time_stamp <= end_time:
-                    for detect_emotion in self.emotion_buffer[time_stamp]:
-                        # print('detect_emotion:',detect_emotion)
-                        emotion_box=detect_emotion['box']
-                        # TODO: use a function to compare the face_box (face from face track, the face who is speaking) and emotion_box(face whihch the emotion detected)
-                        # if self.are_bounding_boxes_almost_same(face_box, emotion_box):
-                        all_emotion.append(detect_emotion['emotion'])
+            if time_stamp >= start_time and time_stamp <= end_time:
+                for detect_emotion in self.emotion_buffer[time_stamp]:
+                    all_emotion.append(detect_emotion['emotion'])
+                # get the most frequent emotion
+                def emotion_priority(emotion):
+                    # Define the priority of emotions
+                    if emotion == "no_face":
+                        return 0
+                    else:
+                        return 1
+                # Find the emotion with the maximum count, considering the custom sorting key
+                pub_emotion = max(set(all_emotion), key=lambda x: (all_emotion.count(x), emotion_priority(x)))
+                # pub_emotion=max(all_emotion,key=all_emotion.count)
+                            
+                resp=EmotionResponse()
+                resp.emotion=pub_emotion
 
-                        # print(self.emotion_buffer)
-                        # print(self.detected_ppl)
+                #for debug
+                self.pub_emotion=copy.copy(pub_emotion)
 
-            self.detected_ppl=None
-            print('all_emotion:',all_emotion)
-            # get the most frequent emotion
-            def emotion_priority(emotion):
-                # Define the priority of emotions
-                if emotion == "no_face":
-                    return 0
-                else:
-                    return 1
-            # Find the emotion with the maximum count, considering the custom sorting key
-            pub_emotion = max(set(all_emotion), key=lambda x: (all_emotion.count(x), emotion_priority(x)))
-            # pub_emotion=max(all_emotion,key=all_emotion.count)
-                        
-            resp=EmotionResponse()
-            resp.emotion=pub_emotion
+                rospy.loginfo('Publish emotion: "%s" ' % (pub_emotion))
 
-            #for debug
-            self.pub_emotion=copy.copy(pub_emotion)
-
-            rospy.loginfo('Publish emotion: "%s" ' % (pub_emotion))
-
-            # TODO: add time_stamp and emotion_prob
-            # resp.time_stamp=time_stamp
-            # resp.emotion_prob=emotion_prob
-            return resp
-        else:
-            # rospy.loginfo('No person detected for emotion')
-            resp=EmotionResponse()
-            resp.emotion='no_person_detected'
-            return resp
+                # TODO: add time_stamp and emotion_prob
+                # resp.time_stamp=time_stamp
+                # resp.emotion_prob=emotion_prob
+                return resp
         
     def __track_cb(self, imsg):
         """
