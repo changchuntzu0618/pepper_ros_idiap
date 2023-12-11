@@ -30,6 +30,8 @@ class RASA:
 
     def rasa_response(self, eos_msg):
         self.text=eos_msg.final_utterance
+        if self.text=='' or self.text==' ':
+            return
         self.confidence=eos_msg.confidence
         self.header=eos_msg.header
         rospy.loginfo('Heard User said: "%s", with confidence "%f" ' % (self.text, self.confidence))
