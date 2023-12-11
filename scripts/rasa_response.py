@@ -7,6 +7,7 @@ from pepper_ros.srv import Emotion, EmotionResponse
 from pepper_ros.msg import PepperTalkTime
 import requests
 import copy
+import time
 
 sender = "user"
 
@@ -18,19 +19,13 @@ detect_emotion_user='detect emotion user'
 
 class RASA:
     def __init__(self):
-        # self.sub=rospy.Subscriber('/human_dialogue', String, self.rasa_response)
         self.sub=rospy.Subscriber('/end_of_speech/eos', EndOfSpeech, self.rasa_response)
-        # self.sub2=rospy.Subscriber('/pepper_say/talk_time', PepperTalkTime, self.get_pepper_talk_time)
         
         self.pub= rospy.Publisher('~rasa_response', String, queue_size=1)
-        self.get_emotion=False
 
         self.srv_emotion = rospy.ServiceProxy('get_emotion', Emotion)
 
         self.talktime_buffer=None
-        self.joke_start=False
-        self.get_time_flag=False
-        self.get_emotion_flag=False
 
     def rasa_response(self, eos_msg):
         self.text=eos_msg.final_utterance
@@ -48,22 +43,18 @@ class RASA:
         results = requests.post(
             rasa_endpoint, json={"sender": sender, "message": text}
         ).json()
-        # print('first:',results)
         for result in results:
             result=result['text']
             if result==detect_emotion_user:
                 self.get_emotion_user_talk()
             elif result==detect_emotion_pepper:
-                print('get emotion pepper')
+                # print('get emotion pepper')
                 self.get_emotion_pepper_talk()
             elif result==utter_think:
                 self.publish_to_result(result)
                 self.utter_think_func()
             else:
                 self.publish_to_result(result)
-        # if self.joke_start:
-        #     self.get_time_flag=True
-        #     self.joke_start=False
             
     
     def publish_to_result(self, result):
@@ -72,18 +63,9 @@ class RASA:
         self.talktime_buffer=rospy.wait_for_message('/pepper_say/talk_time', PepperTalkTime, timeout=10)
         print('self.talktime_buffer:',self.talktime_buffer)
         
-    
-    # def get_pepper_talk_time(self, talk_time):
-    #     if self.get_time_flag:
-    #         self.talktime_buffer=copy.copy(talk_time)
-    #         print('self.talktime_buffer:',self.talktime_buffer)
-    #         self.get_time_flag=False
-    #         self.get_emotion_flag=True
-    
     def get_emotion_pepper_talk(self):
+        time.sleep(2) #wait for 2 second
         emotion=self.srv_emotion('pepper',self.talktime_buffer.start_stamp, self.talktime_buffer.finish_stamp).emotion
-        # for debugging
-        # emotion='sad'
         rospy.loginfo('Get emotion (pepper talk): '+str(emotion))
         self.emotion_to_rasa(emotion)
     
@@ -97,23 +79,18 @@ class RASA:
     def emotion_to_rasa(self, emotion):
         if emotion == 'no_person_detected' or emotion == 'no_face':
             emotion = 'neutral'
-        # # for testing
-        # self.emotion='sad'
 
         content='I am feeling '+str(emotion)
         rospy.loginfo('Send to RASA:' + content)
         self.send_to_rasa(content)
     
     def utter_think_func(self):
-        print('start chatgpt')
+        # print('start chatgpt')
         self.send_to_rasa('start chatgpt')
-        # self.joke_start=True
         
 
 if __name__ == '__main__':
     rospy.init_node('rasa')
     Rasa=RASA()
 
-    # except rospy.ROSInterruptException:
-    #     pass
     rospy.spin()
