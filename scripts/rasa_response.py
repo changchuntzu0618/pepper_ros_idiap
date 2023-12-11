@@ -23,6 +23,8 @@ class RASA:
 
         self.srv_emotion = rospy.ServiceProxy('get_emotion', Emotion)
 
+        self.send_time=None
+
     def rasa_response(self, eos_msg):
         self.text=eos_msg.final_utterance
         self.confidence=eos_msg.confidence
@@ -47,11 +49,13 @@ class RASA:
                 self.utter_think_func()
             else:
                 self.publish_to_result(result)
-        
+    
+  
     
     def publish_to_result(self, result):
         rospy.loginfo('Rasa response: "%s" ' % (result))
         self.pub.publish(result)
+        self.send_time=rospy.Time.now()
 
     def emotion_to_rasa(self):
         # self.emotion=rospy.wait_for_message('/fer/emotion', String, timeout=10)
@@ -70,7 +74,7 @@ class RASA:
         self.send_to_rasa(content)
     
     def utter_think_func(self):
-        self.send_to_rasa('start chatgpt') 
+        self.send_to_rasa('start chatgpt')
 
 
 if __name__ == '__main__':

@@ -79,6 +79,9 @@ class FER:
                         # if self.are_bounding_boxes_almost_same(face_box, emotion_box):
                         all_emotion.append(detect_emotion['emotion'])
 
+                        # print(self.emotion_buffer)
+                        # print(self.detected_ppl)
+
             self.detected_ppl=None
             print('all_emotion:',all_emotion)
             # get the most frequent emotion
@@ -145,6 +148,8 @@ class FER:
         for m in imsg.data:
             if m.person_id not in self.speaking_time:
                 self.speaking_time[m.person_id] = {}
+                self.speaking_time[m.person_id]['start_flag'] = False
+                self.speaking_time[m.person_id]['end_flag'] = False
                 self.speaking_time[m.person_id]['start'] = None
                 self.speaking_time[m.person_id]['end'] = None
                 self.speaking_time[m.person_id]['start_count'] = 0
@@ -155,19 +160,23 @@ class FER:
                 # print('Speaking!!!!')
                 self.speaking_time[m.person_id]['end_count']=0
                 self.speaking_time[m.person_id]['start_count'] += 1
+                if self.speaking_time[m.person_id]['start_count'] == 1:
+                    self.speaking_time[m.person_id]['start']=imsg.header.stamp.to_nsec()
                 self.speaking_time[m.person_id]['speaking_sequence'].append(m.is_speaking)
                 if self.speaking_time[m.person_id]['start_count'] >= 3:
-                    self.speaking_time[m.person_id]['start']=imsg.header.stamp.to_nsec()
+                    self.speaking_time[m.person_id]['start_flag'] = True
             else:
                 # print('Not Speaking!!!!')
                 self.speaking_time[m.person_id]['start_count']=0
                 self.speaking_time[m.person_id]['end_count'] += 1
+                
                 self.speaking_time[m.person_id]['speaking_sequence'].append(m.is_speaking)
                 if self.speaking_time[m.person_id]['end_count'] >= 3:
-                    if self.speaking_time[m.person_id]['start'] is not None:
+                    if self.speaking_time[m.person_id]['start_flag']:
                         self.is_speaking.add(m.person_id)
-                        print('self.is_speaking:',self.is_speaking)
+                        # print('self.is_speaking:',self.is_speaking)
                         self.speaking_time[m.person_id]['end']=imsg.header.stamp.to_nsec()
+                        self.speaking_time[m.person_id]['end_flag'] = True
         # print(self.speaking_time)
         
     def fer(self, data):
@@ -233,10 +242,11 @@ class FER:
         # print(self.emotion_buffer)
 
         # for debug speaking
-        cv_image=cv2.putText(cv_image,'is speaking(before clear):'+str(self.is_speaking_print),(10,30),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
-        cv_image=cv2.putText(cv_image,'all_person_id:'+str(self.all_person_id),(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
-        cv_image=cv2.putText(cv_image,'speaking id (common):'+str(self.speaking_id),(10,70),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
-        cv_image=cv2.putText(cv_image,'publish emotion:'+str(self.pub_emotion),(10,90),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1)
+        # cv_image=cv2.putText(cv_image,'is speaking(before clear):'+str(self.is_speaking_print),(10,30),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
+        # cv_image=cv2.putText(cv_image,'all_person_id:'+str(self.all_person_id),(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
+        # cv_image=cv2.putText(cv_image,'speaking id (common):'+str(self.speaking_id),(10,70),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
+        cv_image=cv2.putText(cv_image,'publish emotion:'+str(self.pub_emotion),(10,30),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1)
+        # cv_image=cv2.putText(cv_image,'time:'+str(time_stamp),(10,30),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),1)
 
         cv2.imshow("Image window", cv_image)
         cv2.waitKey(1)
