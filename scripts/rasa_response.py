@@ -6,6 +6,7 @@ from end_of_speech.msg import EndOfSpeech
 from pepper_ros.srv import Emotion, EmotionResponse
 from pepper_ros.msg import PepperTalkTime
 import requests
+import copy
 
 sender = "user"
 
@@ -66,7 +67,8 @@ class RASA:
         self.send_time=rospy.Time.now()
     
     def get_pepper_talk_time(self, talk_time):
-        self.talktime_buffer=talk_time
+        self.talktime_buffer=copy.copy(talk_time)
+        print('self.talktime_buffer:',self.talktime_buffer)
     
     def get_emotion_pepper_talk(self):
         emotion=self.srv_emotion('pepper',self.talktime_buffer.start_stamp, self.talktime_buffer.finish_stamp).emotion
