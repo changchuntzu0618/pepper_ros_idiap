@@ -24,7 +24,9 @@ class robot:
         # Get the service ALTextToSpeech.
         rospy.loginfo('Pepper say: "%s" ' % pepper_say)
         id=self.tts.say(str(pepper_say))
-        self.tts.wait(id,0)
+
+        while self.tts.isSpeaking():
+            print('Pepper is talking')
         print('Finish talking')
 
 
