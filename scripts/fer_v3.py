@@ -102,7 +102,7 @@ class FER:
                 #for debug
                 self.pub_emotion=copy.copy(pub_emotion)
 
-                rospy.loginfo('Publish emotion: "%s" ' % (pub_emotion))
+                rospy.loginfo('Publish emotion (User talk): "%s" ' % (pub_emotion))
 
                 # TODO: add time_stamp and emotion_prob
                 # resp.time_stamp=time_stamp
@@ -137,7 +137,7 @@ class FER:
                 #for debug
                 self.pub_emotion=copy.copy(pub_emotion)
 
-                rospy.loginfo('Publish emotion: "%s" ' % (pub_emotion))
+                rospy.loginfo('Publish emotion (Pepper talk): "%s" ' % (pub_emotion))
 
                 # TODO: add time_stamp and emotion_prob
                 # resp.time_stamp=time_stamp
