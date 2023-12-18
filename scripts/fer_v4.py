@@ -243,7 +243,6 @@ class FER:
         # print(self.speaking_time)
         
     def fer(self, data):
-        # TODO: clean emotion_buffer after some times (maybe after user finish a sentence)
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             self.image=copy.deepcopy(cv_image)
