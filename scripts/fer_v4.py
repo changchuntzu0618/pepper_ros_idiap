@@ -124,9 +124,6 @@ class FER:
 
                 rospy.loginfo('Publish emotion (User talk): "%s" ' % (pub_emotion))
 
-                # TODO: add time_stamp and emotion_prob
-                print('resp.time_stamp:',emotion_time_stamp)
-                print('resp.emotion_prob:',np.array(emotion_prob))
                 if emotion_time_stamp==[]:
                     resp.time_stamp=[0,0]
                 else:
@@ -136,8 +133,6 @@ class FER:
                         resp.emotion_prob= [0] * 7
                 else:
                     resp.emotion_prob=list(np.mean(np.array(emotion_prob), axis=0))
-                print('resp.time_stamp:',resp.time_stamp)
-                print('resp.emotion_prob:',resp.emotion_prob)
 
                 return resp
             else:
@@ -192,9 +187,6 @@ class FER:
 
             rospy.loginfo('Publish emotion (Pepper talk): "%s" ' % (pub_emotion))
 
-            # TODO: add time_stamp and emotion_prob
-            print('resp.time_stamp:',emotion_time_stamp)
-            print('resp.emotion_prob:',np.array(emotion_prob))
             if emotion_time_stamp==[]:
                 resp.time_stamp=[0,0]
             else:
@@ -204,8 +196,6 @@ class FER:
                     resp.emotion_prob= [0] * 7
             else:
                 resp.emotion_prob=list(np.mean(np.array(emotion_prob), axis=0))
-            print('resp.time_stamp:',resp.time_stamp)
-            print('resp.emotion_prob:',resp.emotion_prob)
             
             # resp.time_stamp=time_stamp
             # resp.emotion_prob=emotion_prob
