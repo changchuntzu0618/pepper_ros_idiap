@@ -36,6 +36,7 @@ Computer Remote: Anothor computer (Tested on Ubuntu 20.04 with ROS Noetic)
 ### Main
 On Computer Master (idiap big computer)
 ```
+#Mummer system
 # run person_manager/demos/demo_perception.sh (it will open a tmux)
 bash /home/mummer/mummer_ws/src/person_manager/demos/demo_perception.sh
 
