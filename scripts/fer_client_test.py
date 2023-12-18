@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     r = rospy.Rate(1)
     while not rospy.is_shutdown():
-        emotion = srv_emotion().emotion
+        emotion = srv_emotion('user',None,None).emotion
         rospy.loginfo('Get emotion: '+str(emotion))
 
         r.sleep()
