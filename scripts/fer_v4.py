@@ -142,8 +142,6 @@ class FER:
                             iou=self.calculate_iou(face_box, emotion_box)
                             if iou>0.5:
                                 all_emotion.append(detect_emotion['emotion'])
-                            # else:
-                            #     print('no the same face')
                         ## Get everyone's emotion in that frame/time_stamp
                         # all_emotion.append(detect_emotion['emotion'])
 
