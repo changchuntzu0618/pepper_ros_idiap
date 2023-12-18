@@ -38,6 +38,7 @@ class FER:
         self.image=None
         self.face_image=None
         self.detected_ppl=None
+        self.previous_detected_ppl=None
 
         # for debug
         self.all_person_id=None
@@ -59,7 +60,7 @@ class FER:
     def get_most_frequenct_emotion(self,all_emotion):
         # get rid of no_face in all emotion
         all_emotion=[x for x in all_emotion if x != 'no_face']
-        print('after all_emotion:',all_emotion)
+        # print('after all_emotion:',all_emotion)
         if all_emotion==[]:
             pub_emotion='no_face'
         else:
@@ -82,19 +83,21 @@ class FER:
                                                                 face_box.image_height,
                                                                 face_box.image_width)
                 face_box=[x0,y0,x1-x0,y1-y0]
+                emotion_buffer=copy.deepcopy(self.emotion_buffer)
                 # print(self.emotion_buffer)
-                for time_stamp in self.emotion_buffer.keys():
+                for time_stamp in emotion_buffer.keys():
                     if time_stamp >= start_time and time_stamp <= end_time:
-                        for detect_emotion in self.emotion_buffer[time_stamp]:
+                        for detect_emotion in emotion_buffer[time_stamp]:
                             # print('detect_emotion:',detect_emotion)
                             emotion_box=detect_emotion['box']
-                            # TODO: use a function to compare the face_box (face from face track, the face who is speaking) and emotion_box(face whihch the emotion detected)
-                            # if self.are_bounding_boxes_almost_same(face_box, emotion_box):
-                            print('face_box:',face_box)
-                            print('emotion_box:',emotion_box)
-                            all_emotion.append(detect_emotion['emotion'])
+                            # print('face_box:',face_box)
+                            # print('emotion_box:',emotion_box)
+                            iou=self.calculate_iou(face_box, emotion_box)
+                            # print('iou:',iou)
+                            if iou>0.5:
+                                all_emotion.append(detect_emotion['emotion'])
 
-                            # print(self.emotion_buffer)
+                            # print(emotion_buffer)
                             # print(self.detected_ppl)
 
                 self.detected_ppl=None
@@ -122,10 +125,28 @@ class FER:
             start_time=req.start_stamp.to_nsec()
             end_time=req.finish_stamp.to_nsec()
             all_emotion=[]
-            for time_stamp in self.emotion_buffer.keys():
+            emotion_buffer=copy.deepcopy(self.emotion_buffer)
+            for time_stamp in emotion_buffer.keys():
                 if time_stamp >= start_time and time_stamp <= end_time:
-                    for detect_emotion in self.emotion_buffer[time_stamp]:
-                        all_emotion.append(detect_emotion['emotion'])
+                    for detect_emotion in emotion_buffer[time_stamp]:
+                        # Get the emotion of the person who is speaking/detected before
+                        if self.previous_detected_ppl is not None:
+                            face_box=self.previous_detected_ppl['box'] 
+                            x0, x1, y0, y1 = self.scale_bounding_box(self.image,
+                                                                            face_box.h, face_box.w,
+                                                                            face_box.height, face_box.width,
+                                                                            face_box.image_height,
+                                                                            face_box.image_width)
+                            face_box=[x0,y0,x1-x0,y1-y0]
+                            emotion_box=detect_emotion['box']
+                            iou=self.calculate_iou(face_box, emotion_box)
+                            if iou>0.5:
+                                all_emotion.append(detect_emotion['emotion'])
+                            # else:
+                            #     print('no the same face')
+                        ## Get everyone's emotion in that frame/time_stamp
+                        # all_emotion.append(detect_emotion['emotion'])
+
             # print('emotion_buffer:',self.emotion_buffer)
             print('all_emotion:',all_emotion)
             pub_emotion=self.get_most_frequenct_emotion(all_emotion)
@@ -167,6 +188,7 @@ class FER:
                 self.detected_ppl={'start':self.speaking_time[speaking_id]['start'],
                                     'end':self.speaking_time[speaking_id]['end'],
                                     'box':self.speaking_time[speaking_id]['box']}
+                self.previous_detected_ppl=copy.deepcopy(self.detected_ppl)
 
                 self.speaking_time={}
                 self.is_speaking_print = copy.copy(self.is_speaking)
@@ -317,36 +339,29 @@ class FER:
         y1 = int((h + height)*H)
 
         return x0, x1, y0, y1
-
-    def are_bounding_boxes_almost_same(self, box1, box2, tolerance=0.1):
-        """
-        Check if two bounding boxes are almost the same.
-
-        Parameters:
-        - box1, box2: Tuple or list representing (x, y, width, height) of the bounding box.
-        - tolerance: Tolerance level for considering the boxes almost the same.
-
-        Returns:
-        - True if the boxes are almost the same, False otherwise.
-        """
+    
+    def calculate_iou(self, box1, box2):
         x1, y1, w1, h1 = box1
         x2, y2, w2, h2 = box2
 
-        # Calculate the percentage difference in each dimension
-        percent_diff_x = abs(x1 - x2) / max(w1, w2)
-        percent_diff_y = abs(y1 - y2) / max(h1, h2)
-        percent_diff_w = abs(w1 - w2) / max(w1, w2)
-        percent_diff_h = abs(h1 - h2) / max(h1, h2)
+        # Calculate the intersection coordinates
+        x_intersection = max(x1, x2)
+        y_intersection = max(y1, y2)
+        w_intersection = min(x1 + w1, x2 + w2) - x_intersection
+        h_intersection = min(y1 + h1, y2 + h2) - y_intersection
 
-        # Check if all differences are within the tolerance
-        return (
-            percent_diff_x <= tolerance
-            and percent_diff_y <= tolerance
-            and percent_diff_w <= tolerance
-            and percent_diff_h <= tolerance
-        )
+        # Check for non-overlapping boxes
+        if w_intersection <= 0 or h_intersection <= 0:
+            return 0.0
 
-            
+        # Calculate area of intersection and union
+        area_intersection = w_intersection * h_intersection
+        area_union = w1 * h1 + w2 * h2 - area_intersection
+
+        # Calculate IoU
+        iou = area_intersection / area_union
+
+        return iou
 
 
 if __name__ == '__main__':
