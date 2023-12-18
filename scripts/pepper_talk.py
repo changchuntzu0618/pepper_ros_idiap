@@ -13,11 +13,11 @@ from pepper_ros.msg import PepperTalkTime
 
 class robot:
     def __init__(self, session):
-        self.tts=session.service("ALTextToSpeech")
-        # self.tts=session.service("ALAnimatedSpeech")
+        # self.tts=session.service("ALTextToSpeech")
+        self.tts=session.service("ALAnimatedSpeech")
         # set the local configuration
-        # self.configuration = {"bodyLanguageMode":"contextual"}
-        self.tts.setLanguage("English")
+        self.configuration = {"bodyLanguageMode":"contextual"}
+        # self.tts.setLanguage("English")
         self.sub=rospy.Subscriber('/rasa/rasa_response', String, self.give_to_pepper)
         self.pub= rospy.Publisher('~talk_time', PepperTalkTime, queue_size=1)
     
@@ -31,8 +31,8 @@ class robot:
         talk_time=PepperTalkTime()
 
         start_stamp=rospy.get_rostime()
-        self.tts.say(str(pepper_say))
-        # self.tts.say(str(pepper_say),self.configuration)
+        # self.tts.say(str(pepper_say))
+        self.tts.say(str(pepper_say),self.configuration)
         finish_stamp=rospy.get_rostime()
         # talk_time.start_stamp=start_stamp
         talk_time.start_stamp=rospy.Time.from_sec((start_stamp.to_sec()+finish_stamp.to_sec())/2)
