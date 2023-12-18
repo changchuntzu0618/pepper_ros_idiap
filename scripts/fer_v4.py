@@ -163,12 +163,14 @@ class FER:
                             face_box=[x0,y0,x1-x0,y1-y0]
                             emotion_box=detect_emotion['box']
                             if emotion_box is None:
+                                # print('emotion box is none')
                                 continue
                             iou=self.calculate_iou(face_box, emotion_box)
                             if iou>0.5:
                                 all_emotion.append(detect_emotion['emotion'])
                                 emotion_time_stamp.append(time_stamp)
                                 emotion_prob.append(list(detect_emotion['emotion_prob'].values()))
+                            # else: print('iou<0.5')
                         ## Get everyone's emotion in that frame/time_stamp
                         # all_emotion.append(detect_emotion['emotion'])
 
