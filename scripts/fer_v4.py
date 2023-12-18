@@ -85,8 +85,12 @@ class FER:
                 face_box=[x0,y0,x1-x0,y1-y0]
                 emotion_buffer=copy.deepcopy(self.emotion_buffer)
                 # print(self.emotion_buffer)
+                print('emotion buffer len:',len(emotion_buffer))
                 for time_stamp in emotion_buffer.keys():
-                    if time_stamp >= start_time and time_stamp <= end_time:
+                    # delete self.emotion_buffer which time_stamp is smaller than start_time
+                    if time_stamp < start_time:
+                        del self.emotion_buffer[time_stamp]
+                    elif time_stamp >= start_time and time_stamp <= end_time:
                         for detect_emotion in emotion_buffer[time_stamp]:
                             # print('detect_emotion:',detect_emotion)
                             emotion_box=detect_emotion['box']
@@ -99,6 +103,8 @@ class FER:
 
                             # print(emotion_buffer)
                             # print(self.detected_ppl)
+                
+                    
 
                 self.detected_ppl=None
                 print('all_emotion:',all_emotion)
@@ -111,6 +117,8 @@ class FER:
                 self.pub_emotion=copy.copy(pub_emotion)
 
                 rospy.loginfo('Publish emotion (User talk): "%s" ' % (pub_emotion))
+
+                print('emotion buffer len after:',len(self.emotion_buffer))
 
                 # TODO: add time_stamp and emotion_prob
                 # resp.time_stamp=time_stamp
@@ -139,6 +147,8 @@ class FER:
                                                                             face_box.image_width)
                             face_box=[x0,y0,x1-x0,y1-y0]
                             emotion_box=detect_emotion['box']
+                            if emotion_box is None:
+                                continue
                             iou=self.calculate_iou(face_box, emotion_box)
                             if iou>0.5:
                                 all_emotion.append(detect_emotion['emotion'])
