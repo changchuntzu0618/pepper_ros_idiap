@@ -9,8 +9,8 @@ time finish_stamp
 # * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')
 # * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')
 # time-handling sugar is provided by the client library
-#time stamp
+int64[2] time_stamp #[strat time, end time] in nsec
 
 string emotion
 
-#float64[7] emotion_prob
+float64[7] emotion_prob
