@@ -17,7 +17,7 @@ class robot:
         self.tts=session.service("ALAnimatedSpeech")
         # set the local configuration
         self.configuration = {"bodyLanguageMode":"contextual"}
-        self.tts.setLanguage("English")
+        # self.tts.setLanguage("English")
         self.sub=rospy.Subscriber('/rasa/rasa_response', String, self.give_to_pepper)
         self.pub= rospy.Publisher('~talk_time', PepperTalkTime, queue_size=1)
     
