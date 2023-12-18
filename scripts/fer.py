@@ -95,17 +95,23 @@ class FER:
                     elif time_stamp >= start_time and time_stamp <= end_time:
                         for detect_emotion in emotion_buffer[time_stamp]:
                             # print('detect_emotion:',detect_emotion)
-                            emotion_box=detect_emotion['box']
-                            if emotion_box is None:
-                                continue
-                            # print('face_box:',face_box)
-                            # print('emotion_box:',emotion_box)
-                            iou=self.calculate_iou(face_box, emotion_box)
-                            # print('iou:',iou)
-                            if iou>0.5:
-                                all_emotion.append(detect_emotion['emotion'])
-                                emotion_time_stamp.append(time_stamp)
-                                emotion_prob.append(list(detect_emotion['emotion_prob'].values()))
+
+                            # For single-person: assume there is only one person in the image
+                            all_emotion.append(detect_emotion['emotion'])
+
+                            ## For multi-person TODO: make it work when the robot is moving (head, body), bec when robot is moving iou is not working
+                            # emotion_box=detect_emotion['box']
+                            # if emotion_box is None:
+                            #     continue
+                            # # print('face_box:',face_box)
+                            # # print('emotion_box:',emotion_box)
+                            # iou=self.calculate_iou(face_box, emotion_box)
+                            # # print('iou:',iou)
+                            # if iou>0.5:
+                            #     all_emotion.append(detect_emotion['emotion'])
+                            #     emotion_time_stamp.append(time_stamp)
+                            #     emotion_prob.append(list(detect_emotion['emotion_prob'].values()))
+
 
                             # print(emotion_buffer)
                             # print(self.detected_ppl)
@@ -154,25 +160,29 @@ class FER:
                     for detect_emotion in emotion_buffer[time_stamp]:
                         # Get the emotion of the person who is speaking/detected before
                         if self.previous_detected_ppl is not None:
-                            face_box=self.previous_detected_ppl['box'] 
-                            x0, x1, y0, y1 = self.scale_bounding_box(self.image,
-                                                                            face_box.h, face_box.w,
-                                                                            face_box.height, face_box.width,
-                                                                            face_box.image_height,
-                                                                            face_box.image_width)
-                            face_box=[x0,y0,x1-x0,y1-y0]
-                            emotion_box=detect_emotion['box']
-                            if emotion_box is None:
-                                # print('emotion box is none')
-                                continue
-                            iou=self.calculate_iou(face_box, emotion_box)
-                            if iou>0.5:
-                                all_emotion.append(detect_emotion['emotion'])
-                                emotion_time_stamp.append(time_stamp)
-                                emotion_prob.append(list(detect_emotion['emotion_prob'].values()))
-                            # else: print('iou<0.5')
-                        ## Get everyone's emotion in that frame/time_stamp
-                        # all_emotion.append(detect_emotion['emotion'])
+                            # For single-person: assume there is only one person in the image
+                            all_emotion.append(detect_emotion['emotion'])
+
+                            ## For multi-person TODO: make it work when the robot is moving (head, body), bec when robot is moving iou is not working
+                            # face_box=self.previous_detected_ppl['box'] 
+                            # x0, x1, y0, y1 = self.scale_bounding_box(self.image,
+                            #                                                 face_box.h, face_box.w,
+                            #                                                 face_box.height, face_box.width,
+                            #                                                 face_box.image_height,
+                            #                                                 face_box.image_width)
+                            # face_box=[x0,y0,x1-x0,y1-y0]
+                            # emotion_box=detect_emotion['box']
+                            # if emotion_box is None:
+                            #     # print('emotion box is none')
+                            #     continue
+                            # iou=self.calculate_iou(face_box, emotion_box)
+                            # if iou>0.5:
+                            #     all_emotion.append(detect_emotion['emotion'])
+                            #     emotion_time_stamp.append(time_stamp)
+                            #     emotion_prob.append(list(detect_emotion['emotion_prob'].values()))
+                            ##else: print('iou<0.5')
+
+
 
             # print('emotion_buffer:',self.emotion_buffer)
             print('all_emotion:',all_emotion)

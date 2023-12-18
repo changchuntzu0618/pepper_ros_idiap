@@ -34,18 +34,12 @@ class RASA:
         self.confidence=eos_msg.confidence
         self.header=eos_msg.header
         if self.talktime_buffer is not None:
-            print('self.header.stamp.to_sec():',self.header.stamp.to_sec())
-            print('self.talktime_buffer.start_stamp.to_sec():',self.talktime_buffer.start_stamp.to_sec())
-            print('self.talktime_buffer.finish_stamp.to_sec():',self.talktime_buffer.finish_stamp.to_sec())
-            if self.header.stamp.to_nsec()<=self.talktime_buffer.start_stamp.to_nsec():
+            # print('self.header.stamp.to_sec():',self.header.stamp.to_sec())
+            # print('self.talktime_buffer.start_stamp.to_sec():',self.talktime_buffer.start_stamp.to_sec())
+            # print('self.talktime_buffer.finish_stamp.to_sec():',self.talktime_buffer.finish_stamp.to_sec())
+            if self.header.stamp.to_nsec()<=self.talktime_buffer.start_stamp.to_nsec() or self.header.stamp.to_nsec()-self.talktime_buffer.finish_stamp.to_nsec()<=4*10**9:
                 print('It is pepper talking')
                 return
-            if self.header.stamp.to_nsec()-self.talktime_buffer.finish_stamp.to_nsec()<=4*10**9:
-                print('It is pepper talking')
-                return
-            # if self.header.stamp.to_nsec()<=self.talktime_buffer.finish_stamp.to_nsec() and 
-            #     print('It is pepper talking')
-            #     return
         
         
         rospy.loginfo('Heard User said: "%s", with confidence "%f" ' % (self.text, self.confidence))
