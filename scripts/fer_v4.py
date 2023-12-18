@@ -10,6 +10,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from deepface import DeepFace
 import os
 import copy
+import numpy as np
 
 BASE=os.path.dirname(os.path.abspath(__file__))
 TMP=os.path.join(BASE,'tmp.jpg')
@@ -85,7 +86,8 @@ class FER:
                 face_box=[x0,y0,x1-x0,y1-y0]
                 emotion_buffer=copy.deepcopy(self.emotion_buffer)
                 # print(self.emotion_buffer)
-                print('emotion buffer len:',len(emotion_buffer))
+                emotion_time_stamp=[]
+                emotion_prob=[]
                 for time_stamp in emotion_buffer.keys():
                     # delete self.emotion_buffer which time_stamp is smaller than start_time
                     if time_stamp < start_time:
@@ -94,12 +96,16 @@ class FER:
                         for detect_emotion in emotion_buffer[time_stamp]:
                             # print('detect_emotion:',detect_emotion)
                             emotion_box=detect_emotion['box']
+                            if emotion_box is None:
+                                continue
                             # print('face_box:',face_box)
                             # print('emotion_box:',emotion_box)
                             iou=self.calculate_iou(face_box, emotion_box)
                             # print('iou:',iou)
                             if iou>0.5:
                                 all_emotion.append(detect_emotion['emotion'])
+                                emotion_time_stamp.append(time_stamp)
+                                emotion_prob.append(list(detect_emotion['emotion_prob'].values()))
 
                             # print(emotion_buffer)
                             # print(self.detected_ppl)
@@ -118,21 +124,35 @@ class FER:
 
                 rospy.loginfo('Publish emotion (User talk): "%s" ' % (pub_emotion))
 
-                print('emotion buffer len after:',len(self.emotion_buffer))
-
                 # TODO: add time_stamp and emotion_prob
-                # resp.time_stamp=time_stamp
-                # resp.emotion_prob=emotion_prob
+                print('resp.time_stamp:',emotion_time_stamp)
+                print('resp.emotion_prob:',np.array(emotion_prob))
+                if emotion_time_stamp==[]:
+                    resp.time_stamp=[0,0]
+                else:
+                    emotion_time_stamp.sort()
+                    resp.time_stamp=[emotion_time_stamp[0],emotion_time_stamp[-1]]
+                if emotion_prob==[]:
+                        resp.emotion_prob= [0] * 7
+                else:
+                    resp.emotion_prob=list(np.mean(np.array(emotion_prob), axis=0))
+                print('resp.time_stamp:',resp.time_stamp)
+                print('resp.emotion_prob:',resp.emotion_prob)
+
                 return resp
             else:
-                # rospy.loginfo('No person detected for emotion')
+                rospy.loginfo('No person detected for emotion')
                 resp=EmotionResponse()
                 resp.emotion='no_person_detected'
+                resp.time_stamp=[rospy.get_rostime().to_nsec(),rospy.get_rostime().to_nsec()]
+                resp.emotion_prob= [0] * 7
                 return resp
         elif req.mode=='pepper':
             start_time=req.start_stamp.to_nsec()
             end_time=req.finish_stamp.to_nsec()
             all_emotion=[]
+            emotion_time_stamp=[]
+            emotion_prob=[]
             emotion_buffer=copy.deepcopy(self.emotion_buffer)
             for time_stamp in emotion_buffer.keys():
                 if time_stamp >= start_time and time_stamp <= end_time:
@@ -152,6 +172,8 @@ class FER:
                             iou=self.calculate_iou(face_box, emotion_box)
                             if iou>0.5:
                                 all_emotion.append(detect_emotion['emotion'])
+                                emotion_time_stamp.append(time_stamp)
+                                emotion_prob.append(list(detect_emotion['emotion_prob'].values()))
                         ## Get everyone's emotion in that frame/time_stamp
                         # all_emotion.append(detect_emotion['emotion'])
 
@@ -171,6 +193,20 @@ class FER:
             rospy.loginfo('Publish emotion (Pepper talk): "%s" ' % (pub_emotion))
 
             # TODO: add time_stamp and emotion_prob
+            print('resp.time_stamp:',emotion_time_stamp)
+            print('resp.emotion_prob:',np.array(emotion_prob))
+            if emotion_time_stamp==[]:
+                resp.time_stamp=[0,0]
+            else:
+                emotion_time_stamp.sort()
+                resp.time_stamp=[emotion_time_stamp[0],emotion_time_stamp[-1]]
+            if emotion_prob==[]:
+                    resp.emotion_prob= [0] * 7
+            else:
+                resp.emotion_prob=list(np.mean(np.array(emotion_prob), axis=0))
+            print('resp.time_stamp:',resp.time_stamp)
+            print('resp.emotion_prob:',resp.emotion_prob)
+            
             # resp.time_stamp=time_stamp
             # resp.emotion_prob=emotion_prob
             return resp
