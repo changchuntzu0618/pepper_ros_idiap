@@ -87,7 +87,7 @@ cd rasa
 rasa run actions
 
 # open a new terminal
-roslaunch pepper_ros remote.launch
+roslaunch pepper_ros launch/remote.launch
 
 ## get the result of ASR and send to rasa and then publish response
 #rosrun pepper_ros rasa_response.py 
