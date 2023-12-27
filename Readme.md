@@ -1,5 +1,5 @@
 # Interaction Manager for Human-Robot Interactions
-**TODO: add abstract of the report**
+**TODO: add abstract/intro of the report**
 
 
 This project used [rasa](https://rasa.com/), an open-source conversational AI platform, and [deepFace](https://github.com/serengil/deepface), a Python framework designed for face recognition and facial attribute analysis.
@@ -106,7 +106,7 @@ cd ../pepper_ros_idiap
 rosrun pepper_ros pepper_talk.py
 ```
 
-## Description
+## Description of main nodes
 #### [rasa_resonse.py](./scripts/rasa_response.py)
 
 The code covers the section responsible for interfacing with Rasa, the conversational system utilized in this project. It transmits the recognized user utterance and emotion to Rasa, retrieves the response, and then sends out that response.
@@ -116,3 +116,5 @@ The code covers the section responsible for interfacing with Rasa, the conversat
 The code includes a facial emotion recognition module that creates an emotion buffer, updating it every 0.1 seconds to store user emotions. Additionally, it functions as a service node, offering the most frequent user emotion during both user and Pepper's speaking periods.
 
 #### [pepper_talk.py](./scripts/pepper_talk.py)
+
+The code includes the section for sending text and "say" commands to Pepper. It receives the text from another node, sends it to Pepper, and Pepper will articulate it either in the 'ALTextToSpeech' mode (just saying it) or in the 'ALAnimatedSpeech' mode (accompanied by movements while talking).
