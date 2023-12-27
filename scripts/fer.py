@@ -1,3 +1,8 @@
+"""
+The code includes a facial emotion recognition module that creates an emotion buffer, updating it 
+every 0.1 seconds to store user emotions. Additionally, it functions as a service node, offering 
+the most frequent user emotion during both user and Pepper's speaking periods.
+"""
 import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
