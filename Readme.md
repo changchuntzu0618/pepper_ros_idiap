@@ -1,5 +1,5 @@
 # Interaction Manager for Human-Robot Interactions
-<span style="color:red">TODO</span>: add abstract of the report
+<span style="color:red"> TODO </span>: add abstract of the report
 
 
 This project used [rasa](https://rasa.com/), an open-source conversational AI platform, and [deepFace](https://github.com/serengil/deepface), a Python framework designed for face recognition and facial attribute analysis.
