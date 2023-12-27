@@ -227,7 +227,17 @@ class FER:
         
 
     def __voice_cb(self, imsg):
-        
+        """
+        Callback function of node "wp2/voice" for getting speaking status.
+
+        This function is designed to be a callback for voice messages, analyzing the speaking
+        behavior of different individuals. It maintains a record of speaking time intervals for
+        each person and identifies when they start and stop speaking.
+
+        Args:
+            imsg (voice_message): Input voice message containing data about speaking behavior.
+
+        """
         for m in imsg.data:
             if m.person_id not in self.speaking_time:
                 self.speaking_time[m.person_id] = {}
@@ -357,6 +367,29 @@ class FER:
         return x0, x1, y0, y1
     
     def calculate_iou(self, box1, box2):
+        '''
+        Calculate the Intersection over Union (IoU) between two bounding boxes.
+
+        IoU is a measure of the overlap between two bounding boxes. It is calculated as the
+        ratio of the area of intersection to the area of union between the two boxes.
+
+        Args:
+            box1 (tuple): A tuple containing the coordinates of the first bounding box
+                        in the format (x1, y1, width1, height1).
+            box2 (tuple): A tuple containing the coordinates of the second bounding box
+                        in the format (x2, y2, width2, height2).
+
+        Returns:
+            float: The Intersection over Union (IoU) between the two bounding boxes,
+                ranging from 0.0 (no overlap) to 1.0 (complete overlap).
+
+        Example:
+            >>> box1 = (10, 20, 30, 40)
+            >>> box2 = (25, 30, 30, 30)
+            >>> iou_value = calculate_iou(box1, box2)
+            >>> print(iou_value)
+            0.42857142857142855
+        '''
         x1, y1, w1, h1 = box1
         x2, y2, w2, h2 = box2
 
