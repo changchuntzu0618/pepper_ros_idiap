@@ -13,11 +13,15 @@ from pepper_ros.msg import PepperTalkTime
 
 class robot:
     def __init__(self, session):
+        ## for using ALTextToSpeech
         # self.tts=session.service("ALTextToSpeech")
+        # self.tts.setLanguage("English")
+
+        # for using ALAnimatedSpeech (speak while moving)
         self.tts=session.service("ALAnimatedSpeech")
         # set the local configuration
         self.configuration = {"bodyLanguageMode":"contextual"}
-        # self.tts.setLanguage("English")
+        
         self.sub=rospy.Subscriber('/rasa/rasa_response', String, self.give_to_pepper)
         self.pub= rospy.Publisher('~talk_time', PepperTalkTime, queue_size=1)
     
@@ -31,15 +35,17 @@ class robot:
         talk_time=PepperTalkTime()
 
         start_stamp=rospy.get_rostime()
+
+        ## for using ALTextToSpeech
         # self.tts.say(str(pepper_say))
+
+        # for using ALAnimatedSpeech (speak while moving)
         self.tts.say(str(pepper_say),self.configuration)
+
         finish_stamp=rospy.get_rostime()
         talk_time.start_stamp=start_stamp
         talk_time.finish_stamp=finish_stamp
-        # talk_time.start_stamp=rospy.Time.from_sec((start_stamp.to_sec()+finish_stamp.to_sec())/2)
-        # talk_time.finish_stamp=rospy.Time.from_sec(finish_stamp.to_sec()+2)
         self.pub.publish(talk_time)
-        # rospy.loginfo('Pepper talk time: "%s" ' % talk_time)
 
 
 if __name__ == '__main__':
@@ -55,7 +61,6 @@ if __name__ == '__main__':
     rospy.init_node('pepper_say')
     try:
         session.connect("tcp://" + args.ip + ":" + str(args.port))
-        # session=None
         Robot=robot(session)
 
     except RuntimeError:
