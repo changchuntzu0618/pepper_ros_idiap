@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+"""
+The code contains the module for interfacing with Rasa, the conversational system. 
+It transmits the recognized user utterance and emotion to Rasa, retrieves the response, 
+and then sends out that response.
+"""
+
 import rospy
 from std_msgs.msg import String
 from end_of_speech.msg import EndOfSpeech
