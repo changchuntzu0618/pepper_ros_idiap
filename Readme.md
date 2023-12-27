@@ -105,3 +105,12 @@ roslaunch pepper_ros launch/remote.launch
 cd ../pepper_ros_idiap
 rosrun pepper_ros pepper_talk.py
 ```
+
+## Description
+#### [rasa_resonse.py](./scripts/rasa_response.py)
+
+#### [fer.py](./scripts/fer.py)
+
+The code includes a facial emotion recognition module that creates an emotion buffer, updating it every 0.1 seconds to store user emotions. Additionally, it functions as a service node, offering the most frequent user emotion during both user and Pepper's speaking periods.
+
+#### [pepper_talk.py](./scripts/pepper_talk.py)
