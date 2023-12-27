@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+The code includes the section for sending text and "say" commands to Pepper. It receives the text 
+from another node, sends it to Pepper, and Pepper will articulate it either in the 'ALTextToSpeech' 
+mode (just saying it) or in the 'ALAnimatedSpeech' mode (accompanied by movements while talking).
+"""
 
 import os
 import qi
