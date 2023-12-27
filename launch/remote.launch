@@ -1,0 +1,4 @@
+<launch>
+  <node name="rasa_response" pkg="pepper_ros" type="rasa_response.py",output="screen"/>
+  <node name="fer" pkg="pepper_ros" type="fer.py",output="screen"/>
+</launch>
