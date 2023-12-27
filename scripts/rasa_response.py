@@ -34,9 +34,6 @@ class RASA:
         self.confidence=eos_msg.confidence
         self.header=eos_msg.header
         if self.talktime_buffer is not None:
-            # print('self.header.stamp.to_sec():',self.header.stamp.to_sec())
-            # print('self.talktime_buffer.start_stamp.to_sec():',self.talktime_buffer.start_stamp.to_sec())
-            # print('self.talktime_buffer.finish_stamp.to_sec():',self.talktime_buffer.finish_stamp.to_sec())
             if self.header.stamp.to_nsec()<=self.talktime_buffer.start_stamp.to_nsec() or self.header.stamp.to_nsec()-self.talktime_buffer.finish_stamp.to_nsec()<=4*10**9:
                 print('It is pepper talking')
                 return
@@ -57,7 +54,6 @@ class RASA:
             if result==detect_emotion_user:
                 self.get_emotion_user_talk()
             elif result==detect_emotion_pepper:
-                # print('get emotion pepper')
                 self.get_emotion_pepper_talk()
             elif result==utter_think:
                 self.publish_to_result(result)
@@ -73,7 +69,6 @@ class RASA:
         self.talktime_buffer_send=copy.deepcopy(self.talktime_buffer)
         self.talktime_buffer_send.start_stamp=rospy.Time.from_sec((self.talktime_buffer.start_stamp.to_sec()+self.talktime_buffer.finish_stamp.to_sec())/2)
         self.talktime_buffer_send.finish_stamp=rospy.Time.from_sec(self.talktime_buffer.finish_stamp.to_sec()+2)
-        # print('self.talktime_buffer:',self.talktime_buffer)
         
     def get_emotion_pepper_talk(self):
         time.sleep(3) #wait for 3 second
@@ -82,8 +77,6 @@ class RASA:
         self.emotion_to_rasa(emotion)
     
     def get_emotion_user_talk(self):
-        # self.emotion=rospy.wait_for_message('/fer/emotion', String, timeout=10)
-        # content='I am feeling '+str(self.emotion.data)
         emotion = self.srv_emotion('user',None,None).emotion
         rospy.loginfo('Get emotion (user talk): '+str(emotion))
         self.emotion_to_rasa(emotion)
@@ -97,7 +90,6 @@ class RASA:
         self.send_to_rasa(content)
     
     def utter_think_func(self):
-        # print('start chatgpt')
         self.send_to_rasa('start chatgpt')
         
 
