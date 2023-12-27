@@ -41,10 +41,8 @@ class FER:
         self.detected_ppl=None
         self.previous_detected_ppl=None
 
-        # for debug
         self.all_person_id=None
         self.speaking_id=None
-        self.is_speaking_print=None
         self.pub_emotion=None
 
         self.is_speaking = set([])
@@ -61,7 +59,6 @@ class FER:
     def get_most_frequenct_emotion(self,all_emotion):
         # get rid of no_face in all emotion
         all_emotion=[x for x in all_emotion if x != 'no_face']
-        # print('after all_emotion:',all_emotion)
         if all_emotion==[]:
             pub_emotion='no_face'
         else:
@@ -85,7 +82,6 @@ class FER:
                                                                 face_box.image_width)
                 face_box=[x0,y0,x1-x0,y1-y0]
                 emotion_buffer=copy.deepcopy(self.emotion_buffer)
-                # print(self.emotion_buffer)
                 emotion_time_stamp=[]
                 emotion_prob=[]
                 for time_stamp in emotion_buffer.keys():
@@ -94,10 +90,9 @@ class FER:
                         del self.emotion_buffer[time_stamp]
                     elif time_stamp >= start_time and time_stamp <= end_time:
                         for detect_emotion in emotion_buffer[time_stamp]:
-                            # print('detect_emotion:',detect_emotion)
 
                             # For single-person: assume there is only one person in the image
-                            all_emotion.append(detect_emotion['emotion'])
+                            all_emotion.append(detect_emotion[0]['emotion'])
 
                             ## For multi-person TODO: make it work when the robot is moving (head, body), bec when robot is moving iou is not working
                             # emotion_box=detect_emotion['box']
@@ -125,7 +120,6 @@ class FER:
                 resp=EmotionResponse()
                 resp.emotion=pub_emotion
 
-                #for debug
                 self.pub_emotion=copy.copy(pub_emotion)
 
                 rospy.loginfo('Publish emotion (User talk): "%s" ' % (pub_emotion))
@@ -161,7 +155,7 @@ class FER:
                         # Get the emotion of the person who is speaking/detected before
                         if self.previous_detected_ppl is not None:
                             # For single-person: assume there is only one person in the image
-                            all_emotion.append(detect_emotion['emotion'])
+                            all_emotion.append(detect_emotion[0]['emotion'])
 
                             ## For multi-person TODO: make it work when the robot is moving (head, body), bec when robot is moving iou is not working
                             # face_box=self.previous_detected_ppl['box'] 
@@ -183,18 +177,13 @@ class FER:
                             ##else: print('iou<0.5')
 
 
-
-            # print('emotion_buffer:',self.emotion_buffer)
             print('all_emotion:',all_emotion)
             pub_emotion=self.get_most_frequenct_emotion(all_emotion)
-            # # print('start_time:',start_time)
-            # # print('end_time:',end_time)
 
                         
             resp=EmotionResponse()
             resp.emotion=pub_emotion
 
-            #for debug
             self.pub_emotion=copy.copy(pub_emotion)
 
             rospy.loginfo('Publish emotion (Pepper talk): "%s" ' % (pub_emotion))
@@ -209,13 +198,10 @@ class FER:
             else:
                 resp.emotion_prob=list(np.mean(np.array(emotion_prob), axis=0))
             
-            # resp.time_stamp=time_stamp
-            # resp.emotion_prob=emotion_prob
             return resp
         
     def __track_cb(self, imsg):
-        """
-        """
+
         for i,p in enumerate(imsg.data):
             all_person_id=[]
             all_person_id.append(p.person_id)
@@ -237,14 +223,10 @@ class FER:
                 self.previous_detected_ppl=copy.deepcopy(self.detected_ppl)
 
                 self.speaking_time={}
-                self.is_speaking_print = copy.copy(self.is_speaking)
                 self.is_speaking.clear()
         
 
     def __voice_cb(self, imsg):
-        """
-        """
-        # self.is_speaking.clear()
         
         for m in imsg.data:
             if m.person_id not in self.speaking_time:
@@ -275,10 +257,8 @@ class FER:
                 if self.speaking_time[m.person_id]['end_count'] >= 3:
                     if self.speaking_time[m.person_id]['start_flag']:
                         self.is_speaking.add(m.person_id)
-                        # print('self.is_speaking:',self.is_speaking)
                         self.speaking_time[m.person_id]['end']=imsg.header.stamp.to_nsec()
                         self.speaking_time[m.person_id]['end_flag'] = True
-        # print(self.speaking_time)
         
     def fer(self, data):
         try:
@@ -287,7 +267,6 @@ class FER:
         except CvBridgeError as e:
             print(e)
 
-        # cv2.imwrite(TMP, cv_image)
         time_stamp=(data.header.stamp).to_nsec()
 
         # store the emotion buffer every 0.1 second
@@ -301,7 +280,6 @@ class FER:
             )
         
             for objs in all_objs:
-                # print('objs:',objs)
                 detected_emotion=objs['dominant_emotion']
                 if detected_emotion in SAD_EMOTION:
                     detected_emotion='sad'
@@ -339,14 +317,7 @@ class FER:
                 info['box']=None
                 self.emotion_buffer[time_stamp].append(info)
 
-        # print(self.emotion_buffer)
-
-        # for debug speaking
-        # cv_image=cv2.putText(cv_image,'is speaking(before clear):'+str(self.is_speaking_print),(10,30),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
-        # cv_image=cv2.putText(cv_image,'all_person_id:'+str(self.all_person_id),(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
-        # cv_image=cv2.putText(cv_image,'speaking id (common):'+str(self.speaking_id),(10,70),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1) 
         cv_image=cv2.putText(cv_image,'publish emotion:'+str(self.pub_emotion),(10,40),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),1)
-        # cv_image=cv2.putText(cv_image,'time:'+str(time_stamp),(10,50),cv2.FONT_HERSHEY_COMPLEX,1,(0,0,255),1)
 
         cv2.imshow("Image window", cv_image)
         cv2.waitKey(1)
@@ -412,13 +383,5 @@ class FER:
 if __name__ == '__main__':
     rospy.init_node('fer')
     Fer=FER()
-    # r = rospy.Rate(10) # 10hz
-    # while not rospy.is_shutdown():
-    #     Fer.publish_flag()
-    #     r.sleep()
-
-
-    # except rospy.ROSInterruptException:
-    #     pass
     rospy.spin()
     cv2.destroyAllWindows()
