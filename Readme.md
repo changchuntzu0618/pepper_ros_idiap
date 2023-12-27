@@ -109,6 +109,8 @@ rosrun pepper_ros pepper_talk.py
 ## Description
 #### [rasa_resonse.py](./scripts/rasa_response.py)
 
+The code covers the section responsible for interfacing with Rasa, the conversational system utilized in this project. It transmits the recognized user utterance and emotion to Rasa, retrieves the response, and then sends out that response.
+
 #### [fer.py](./scripts/fer.py)
 
 The code includes a facial emotion recognition module that creates an emotion buffer, updating it every 0.1 seconds to store user emotions. Additionally, it functions as a service node, offering the most frequent user emotion during both user and Pepper's speaking periods.
