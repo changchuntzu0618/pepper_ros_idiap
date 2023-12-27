@@ -41,8 +41,6 @@ class FER:
         self.detected_ppl=None
         self.previous_detected_ppl=None
 
-        self.all_person_id=None
-        self.speaking_id=None
         self.pub_emotion=None
 
         self.is_speaking = set([])
@@ -57,6 +55,18 @@ class FER:
         self.srv = rospy.Service('get_emotion', Emotion, self.emotion_callback)
     
     def get_most_frequenct_emotion(self,all_emotion):
+        """
+        Determine and return the most frequently occurring emotion from a list of emotions. 
+        Additionaly, the 'no_face' emotion is excluded from consideration. 
+
+        Args:
+            all_emotion (list): A list containing emotional labels, where 'no_face' may be present.
+
+        Returns:
+            str: The most frequently occurring emotion in the input list, or 'no_face' if the list
+                is empty after excluding 'no_face'.
+        """
+
         # get rid of no_face in all emotion
         all_emotion=[x for x in all_emotion if x != 'no_face']
         if all_emotion==[]:
@@ -68,6 +78,23 @@ class FER:
 
         
     def emotion_callback(self,req):
+        """
+        Callback function for the "get_emotion" service to retrieve emotion information.
+
+        This function is called in response to requests for emotion information. It processes
+        the request based on the specified mode ('user' or 'pepper'). 'User' mode is getting user emotion 
+        in the period when the user is talking. 'Pepper' mode is detect user emotion in the period when 
+        the pepper is talking. Then it resonse with the most frequent emotion, time stamps, 
+        and emotion probabilities.
+
+        Args:
+            req (GetEmotionRequest): The request object specifying the mode and, in the case of
+                                    'pepper' mode, start and finish timestamps.
+
+        Returns:
+            EmotionResponse: The response object containing emotion information, including the
+                            most frequent emotion, time stamps, and emotion probabilities.
+        """
         if req.mode=='user':
             if self.detected_ppl is not None:
                 all_emotion=[]
@@ -110,9 +137,6 @@ class FER:
 
                             # print(emotion_buffer)
                             # print(self.detected_ppl)
-                
-                    
-
                 self.detected_ppl=None
                 print('all_emotion:',all_emotion)
                 pub_emotion=self.get_most_frequenct_emotion(all_emotion)
@@ -201,22 +225,26 @@ class FER:
             return resp
         
     def __track_cb(self, imsg):
+        """
+        Callback function of node "wp2/track" for getting face tracking information.
+
+        This function is designed to be a callback for face tracking messages, extracting person IDs,
+        and updating detected person (who is speaking and also being detcted) based on the intersection
+        of tracked IDs with speaking IDs.
+
+        Args:
+            imsg (tracking_message): Input face tracking message containing data about tracked persons.
+        """
 
         for i,p in enumerate(imsg.data):
             all_person_id=[]
             all_person_id.append(p.person_id)
             all_person_id.extend(p.alternate_ids)
-            # for debug
-            self.all_person_id=copy.copy(all_person_id)
 
             common=self.is_speaking & set(all_person_id)
             if common:
                 speaking_id = list(common)[0]
-                # for debug
-                self.speaking_id=copy.copy(speaking_id)
-
                 self.speaking_time[speaking_id]['box']=p.box
-                # print('final:',self.speaking_time[speaking_id])
                 self.detected_ppl={'start':self.speaking_time[speaking_id]['start'],
                                     'end':self.speaking_time[speaking_id]['end'],
                                     'box':self.speaking_time[speaking_id]['box']}
@@ -271,6 +299,18 @@ class FER:
                         self.speaking_time[m.person_id]['end_flag'] = True
         
     def fer(self, data):
+        """
+        Main function for facial emotion recognition. This function performs facial emotion recognition on 
+        the input image, updating the emotion buffer every 0.1 seconds with detected emotions, their 
+        probabilities, and bounding box information. The function uses the DeepFace library for analysis.
+
+        Detected emotions are simplified to 'sad', 'happy', 'neutral', or 'no_face' based on
+        the dominant emotion category.
+
+        Args:
+            data (Image): Input image data from node "/naoqi_driver_node/camera/front/image_raw"
+
+        """
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             self.image=copy.deepcopy(cv_image)
