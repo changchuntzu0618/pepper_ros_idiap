@@ -45,28 +45,28 @@ roscore
 ### Main
 #### On Computer Master
 
-Here for testing, we used idiap computer which has ubuntu 16 and already contained mummer system inside. Some of the package are from Idiap Mummer system directely from computer.
+Here for testing, we used the idiap computer which has ubuntu 16 and already contained Mummer system inside. Some of the package are from Idiap Mummer system directely from computer.
 ```
 # From Mummer system
 # run person_manager/demos/demo_perception.sh (it will open a tmux)
 bash /home/mummer/mummer_ws/src/person_manager/demos/demo_perception.sh
 
-#Only need to runing following command in all three tmux window
+# Only need to runing following command in all three tmux window
 # Window 1:robot (crtl-b -> 1)
 # Get the sensor data from Pepper
 DISPLAY=:0 roslaunch naoqi_driver naoqi_driver.launch network_interface:=enp5s0
-#Align color image and depth image
+# Align color image and depth image
 DISPLAY=:0 roslaunch naoqi_driver register_depth.launch
 
 # Window 2: perception (crtl-b -> 2)
-#Before running following command source env first
+# Before running following command source env first
 source ~/mummer_ws/devel/setup.bash
 # perception manager code it will give out topic for face tracker and is_speaking
-#change manager_visu to 0 to close the visulization window
+# change manager_visu to 0 to close the visulization window
 DISPLAY=:0 roslaunch person_manager perception.launch naoqi:=1 tracker_delay:=50 tracker_scale:=0.5 tracker_detector:=openheadpose tracker_particles:=50 tracker_min_height:=0.12 manager_keep_threshold:=0.02 tracker_visu:=1 manager_visu:=1 with_audio:=1
 
-#Open a new terminal
-#Mummur ASR: for speech-to-text, set use_extra_mic to ture for using external microphone 
+# Open a new terminal
+# Mummur ASR: for speech-to-text, set use_extra_mic to ture for using external microphone 
 roslaunch mummer_asr_launch mummer_asr.launch use_extra_mic:=false target_language:=en-UK
 
 # To start Listen what user said
@@ -97,8 +97,8 @@ roslaunch pepper_ros remote.launch
 
 #### On Computer Master
 ```
-#open a new terminal
-#Send command to Pepper
+# open a new terminal
+# Send command to Pepper
 cd ../pepper_ros_idiap
 rosrun pepper_ros pepper_talk.py
 ```
