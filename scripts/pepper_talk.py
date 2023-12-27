@@ -4,6 +4,7 @@
 The code includes the section for sending text and "say" commands to Pepper. It receives the text 
 from another node, sends it to Pepper, and Pepper will articulate it either in the 'ALTextToSpeech' 
 mode (just saying it) or in the 'ALAnimatedSpeech' mode (accompanied by movements while talking).
+Moreover, it publishes information about the time period during which Pepper is talking.
 """
 
 import os
