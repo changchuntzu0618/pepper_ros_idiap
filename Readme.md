@@ -109,7 +109,7 @@ cd ../pepper_ros_idiap
 rosrun pepper_ros pepper_talk.py
 ```
 
-## Description of main nodes
+## Description of main scripts
 #### [rasa_resonse.py](./scripts/rasa_response.py)
 
 The code covers the section responsible for interfacing with Rasa, the conversational system utilized in this project. It transmits the recognized user utterance and emotion to Rasa, retrieves the response, and then sends out that response.
