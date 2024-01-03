@@ -55,7 +55,7 @@ class FER:
         self.sub_tracker=rospy.Subscriber('/wp2/track',TrackedPersonArray, self.__track_cb, queue_size=10)
         self.sub_voise=rospy.Subscriber('/wp2/voice',VoiceActivityArray, self.__voice_cb, queue_size=10)
 
-        self.pub= rospy.Publisher('~emotion', String, queue_size=1)
+        # self.pub= rospy.Publisher('~emotion', String, queue_size=1)
 
         self.srv = rospy.Service('get_emotion', Emotion, self.emotion_callback)
     
