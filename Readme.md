@@ -1,5 +1,8 @@
 # Interaction Manager for Human-Robot Interactions
-**TODO: add abstract/intro of the report**
+
+Nowadays, an increasing number of social robots are becoming common in our daily lives, serving various purposes like service robots in restaurants or hotels and guided robots in museums or airports. The conversation is the main part when interacting with these robots. While current technologies enable robots to easily recognize what people say and give out a correct response, natural human conversation and interaction include not only verbal behavior but also non-verbal aspects such as gestures, emotions, and gaze direction. By incorporating both verbal and non-verbal behaviors, conversations become more engaging, contributing to an enhanced user experience.
+
+In this project, we aim to enhance the user's communication experience with social robots by developing a multimodal communication system. Beyond the dialogue system employed for human-robot interactions, we introduce a non-verbal behavior, user emotions, into the dialogue, allowing the robot to express and respond to the user's emotional state. Furthermore, we establish a fully functional real-time robotics system for human-robot interaction. Users can engage in a full dialogue with the robot, providing a neutral and immersive conversational experience. A demonstration video is available at [here](https://youtu.be/GYSCGwcJkY4).
 
 
 This project used [rasa](https://rasa.com/), an open-source conversational AI platform, and [deepFace](https://github.com/serengil/deepface), a Python framework designed for face recognition and facial attribute analysis.
