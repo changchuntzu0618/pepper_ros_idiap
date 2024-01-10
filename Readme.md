@@ -43,6 +43,14 @@ pip3 install deepface
 git clone --recursive https://github.com/changchuntzu0618/pepper_ros_idiap.git
 ```
 
+## Build
+```
+
+cd your_ws
+catkin_make
+
+```
+
 ## Run
 ### Set up network for ROS communication between Master and Remote
 ```
@@ -71,12 +79,20 @@ source ~/mummer_ws/devel/setup.bash
 # change manager_visu to 0 to close the visulization window
 DISPLAY=:0 roslaunch person_manager perception.launch naoqi:=1 tracker_delay:=50 tracker_scale:=0.5 tracker_detector:=openheadpose tracker_particles:=50 tracker_min_height:=0.12 manager_keep_threshold:=0.02 tracker_visu:=1 manager_visu:=1 with_audio:=1
 
+
 # Open a new terminal
 # Mummur ASR: for speech-to-text, set use_extra_mic to ture for using external microphone 
 roslaunch mummer_asr_launch mummer_asr.launch use_extra_mic:=false target_language:=en-UK
 
 # To start Listen what user said
 rosservice call /mummer_asr/resume
+```
+
+```
+# Open a new terminal
+# Send command to Pepper
+cd ../pepper_ros_idiap
+rosrun pepper_ros pepper_talk.py
 ```
 
 #### On Computer Remote (local computer which contain this repo)
@@ -93,21 +109,14 @@ cd rasa
 rasa run actions
 
 # open a new terminal
-roslaunch pepper_ros launch/remote.launch
+# get the result of ASR and send to rasa and then publish response
+rosrun pepper_ros rasa_response.py 
 
-## get the result of ASR and send to rasa and then publish response
-#rosrun pepper_ros rasa_response.py 
-## strat facial expression recognition and publish deetcted emotion of user in every speech
-#rosrun pepper_ros fer.py
-```
-
-#### On Computer Master
-```
 # open a new terminal
-# Send command to Pepper
-cd ../pepper_ros_idiap
-rosrun pepper_ros pepper_talk.py
+# strat facial expression recognition and publish deetcted emotion of user in every speech
+rosrun pepper_ros fer.py
 ```
+
 
 ## Description of main scripts
 #### [rasa_resonse.py](./scripts/rasa_response.py)
