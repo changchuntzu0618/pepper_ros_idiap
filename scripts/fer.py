@@ -123,7 +123,8 @@ class FER:
                     elif time_stamp >= start_time and time_stamp <= end_time:
                         for detect_emotion in emotion_buffer[time_stamp]:
                             # For single-person: assume there is only one person in the image
-                            print('detect_emotion',detect_emotion)
+                            # print('detect_emotion',detect_emotion)
+                            # TODO : Fix this
                             try:
                                 all_emotion.append(detect_emotion[0]['emotion'])
                             except:
