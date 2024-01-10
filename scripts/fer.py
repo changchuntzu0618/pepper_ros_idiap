@@ -122,9 +122,12 @@ class FER:
                         del self.emotion_buffer[time_stamp]
                     elif time_stamp >= start_time and time_stamp <= end_time:
                         for detect_emotion in emotion_buffer[time_stamp]:
-
                             # For single-person: assume there is only one person in the image
-                            all_emotion.append(detect_emotion[0]['emotion'])
+                            print('detect_emotion',detect_emotion)
+                            try:
+                                all_emotion.append(detect_emotion[0]['emotion'])
+                            except:
+                                all_emotion.append(detect_emotion['emotion'])
 
                             ## For multi-person TODO: make it work when the robot is moving (head, body), bec when robot is moving iou is not working
                             # emotion_box=detect_emotion['box']
@@ -184,7 +187,10 @@ class FER:
                         # Get the emotion of the person who is speaking/detected before
                         if self.previous_detected_ppl is not None:
                             # For single-person: assume there is only one person in the image
-                            all_emotion.append(detect_emotion[0]['emotion'])
+                            try:
+                                all_emotion.append(detect_emotion[0]['emotion'])
+                            except:
+                                all_emotion.append(detect_emotion['emotion'])
 
                             ## For multi-person TODO: make it work when the robot is moving (head, body), bec when robot is moving iou is not working
                             # face_box=self.previous_detected_ppl['box'] 
